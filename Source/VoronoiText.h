@@ -1,4 +1,4 @@
-/* Copyright 2011-2013 Arch D. Robison 
+/* Copyright 2011-2020 Arch D. Robison 
 
    Licensed under the Apache License, Version 2.0 (the "License"); 
    you may not use this file except in compliance with the License. 
@@ -118,7 +118,7 @@ public:
     int height() const { return myHeight*VoronoiChar::height; }
     //! Generate ants for *this.
     /** Useful when diplaying text as part of a larger Voronoi diagram */
-    Ant* assignAnts(Ant* a, Point upperLeft, float scale=1);
+    Ant* copyToAnts(Ant* a, Point upperLeft, float scale=1);
     void drawOn(NimblePixMap& window, const CompoundRegion& region, Point upperLeft, float scale=1);
     void drawOn(NimblePixMap& window, int x, int y, float scale=1, bool compose=false);
     //! Initialize to hold given number of rows and columns of characters.
@@ -165,12 +165,12 @@ private:
 class VoronoiCounter {
 public:
     void initialize( NimblePixMap& window, int width, int height, int initialValue, int upperLimit, int extra, NimbleColor c0, NimbleColor c1 );
-    Ant* assignAnts( NimblePixMap& window, CompoundRegion region, Ant* a, int x, int y );
+    Ant* copyToAnts( NimblePixMap& window, CompoundRegion region, Ant* a, int x, int y );
     int operator+=( int addend );
     int value() const {return myValue;}
     int upperLimit() const {return myUpperLimit;}
 private:
-    BasicArray<Bug> myBug;
+    BugArray<Bug> myBug;
     int myValue;
     int myUpperLimit;
     int myExtra;

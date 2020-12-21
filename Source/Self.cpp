@@ -1,4 +1,4 @@
-/* Copyright 2011-2013 Arch D. Robison 
+/* Copyright 2011-2020 Arch D. Robison 
 
    Licensed under the Apache License, Version 2.0 (the "License"); 
    you may not use this file except in compliance with the License. 
@@ -33,7 +33,7 @@ void SelfType::initialize( NimblePixMap& window ) {
     vel = Point(0,0);  
     isInPond = true;
     pondIndex = 0;
-    kind = BK_SELF;
+    kind = BeetleKind::self;
     orbit = colorWobble.orbit(1.0f,0);
     color = OutlinedColor(colorWobble(orbit),exSelf);
     soundId = 1;

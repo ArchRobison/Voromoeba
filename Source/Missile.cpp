@@ -1,4 +1,4 @@
-/* Copyright 2011-2013 Arch D. Robison 
+/* Copyright 2011-2020 Arch D. Robison 
 
    Licensed under the Apache License, Version 2.0 (the "License"); 
    you may not use this file except in compliance with the License. 
@@ -65,7 +65,7 @@ void MissileType::fire() {
 void Missiles::initialize( NimblePixMap& window ) {
     for( size_t k=0; k<N_Missile; ++k ) {
         MissileType& b = Missile[k];
-        b.kind = BK_MISSILE;
+        b.kind = BeetleKind::missile;
         int adjustBlue = (k%2)*32;
         int adjustRed = (k/2%2)*32;
         b.colorDecay.initialize( window, NimbleColor( 255-adjustRed, 0, 255-adjustBlue ),
@@ -80,7 +80,7 @@ void Missiles::update( float dt ) {
         Missile[k].update(dt);
 }
 
-Ant* Missiles::assignAnts(Ant* a, size_t firstPond, size_t lastPond ) {
+Ant* Missiles::copyToAnts(Ant* a, size_t firstPond, size_t lastPond ) {
     for( size_t k=0; k<N_Missile; ++k ) 
         if( Missile[k].value )
             a = Missile[k].assignAntIf( a, World::viewTransform, firstPond, lastPond );
@@ -98,7 +98,7 @@ void Missiles::tryFire() {
 }
 
 void Missiles::tallyHit(Beetle& b) {
-    Assert( b.kind == BK_MISSILE );
+    Assert( b.kind == BeetleKind::missile );
     MissileType& m = static_cast<MissileType&>(b);
     Assert( Missile<=&m && &m<Missile+N_Missile );
     TheScoreMeter.addScore( m.value );

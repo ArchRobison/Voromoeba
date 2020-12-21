@@ -105,8 +105,8 @@ static void ConstructSound( SoundKind k, size_t n ) {
 static const int N_SLUSH_VOICE_MAX = 32;
 
 struct SlushRecord {
-    const Beetle* beetle;             //!< BK_SELF or BK_MISSILE
-    const Beetle* other;              //!< BK_WATER
+    const Beetle* beetle;             //!< BeetleKind::self or BeetleKind::missile
+    const Beetle* other;              //!< BeetleKind::water
     float newSegmentLength;
     float newRelativeVolume;
     void assign( const Beetle* b, const Beetle* o, float segmentLength, float relativeVolume ) {
@@ -150,7 +150,7 @@ struct SlushVoice {
 typedef unsigned EdgeSoundId;
 
 static EdgeSoundId EdgeIdOf( const Beetle& b, const Beetle& other ) {
-    Assert( b.kind==BK_SELF || b.kind==BK_MISSILE );
+    Assert( b.kind==BeetleKind::self || b.kind==BeetleKind::missile );
     Assert( 0<b.soundId );
     return b.soundId<<16 | other.soundId;    
 }
@@ -189,8 +189,8 @@ BeetleSoundId AllocateSlush( float u ) {
 }
 
 void AppendSlush( const Beetle& b, const Beetle& other, float segmentLength, float relativeVolume ) {
-    Assert( b.kind==BK_SELF || b.kind==BK_MISSILE );
-    Assert( other.kind==BK_WATER );
+    Assert( b.kind==BeetleKind::self || b.kind==BeetleKind::missile );
+    Assert( other.kind==BeetleKind::water );
     SlushLookup r;
     r.edgeId = EdgeIdOf(b,other); 
     SlushLookup* d = std::lower_bound( SlushLookupBegin, SlushLookupEnd, r );
@@ -242,8 +242,8 @@ void UpdateSlush( float dt ) {
         Assert( s->other->soundId<=SlushPitch.size() );
         float pitch = SlushPitch[s->other->soundId-1];
         v.relativeVolume = s->newRelativeVolume;
-        Assert( s->beetle->kind==BK_SELF || s->beetle->kind==BK_MISSILE );
-        SoundKind k = s->beetle->kind==BK_SELF ? SOUND_SELF : SOUND_MISSILE;
+        Assert( s->beetle->kind==BeetleKind::self || s->beetle->kind==BeetleKind::missile );
+        SoundKind k = s->beetle->kind==BeetleKind::self ? SOUND_SELF : SOUND_MISSILE;
         v.begin( TheSounds[k], pitch, scale ); 
         v.oldSegmentLength = v.newSegmentLength;
         v.newSegmentLength = 0;

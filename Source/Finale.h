@@ -1,4 +1,4 @@
-/* Copyright 2011-2013 Arch D. Robison 
+/* Copyright 2011-2020 Arch D. Robison 
 
    Licensed under the Apache License, Version 2.0 (the "License"); 
    you may not use this file except in compliance with the License. 
@@ -28,7 +28,7 @@ public:
     /** The window, p, and q arguments are used to determine where to place the text in the Window.
         Point p should be a point not on land.  
         Point q should be the center of the pond containing p or connected to a bridge containing p. */ 
-    static Ant* assignAnts( Ant* a, NimblePixMap& window, Point p, Point q );
+    static Ant* copyToAnts( Ant* a, NimblePixMap& window, Point p, Point q );
 private:
     static float myTime;
 };

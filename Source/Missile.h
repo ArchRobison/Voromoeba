@@ -1,4 +1,4 @@
-/* Copyright 2011-2013 Arch D. Robison 
+/* Copyright 2011-2020 Arch D. Robison 
 
    Licensed under the Apache License, Version 2.0 (the "License"); 
    you may not use this file except in compliance with the License. 
@@ -28,7 +28,7 @@ public:
     static void tryFire();
     static void tallyHit( Beetle& b );
     //! Fill Ant buffer with Ants for any Missiles in ponds [firstPond,lastPond)
-    static Ant* assignAnts( Ant* a, size_t firstPond, size_t lastPond );
+    static Ant* copyToAnts( Ant* a, size_t firstPond, size_t lastPond );
 };
 
 #endif /* Missile_H */

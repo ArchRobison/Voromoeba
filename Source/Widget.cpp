@@ -228,33 +228,37 @@ void DigitalMeter::drawOn( NimblePixMap& map, int x, int y ) const {
 // InkOverlay
 //-----------------------------------------------------------------
 
-void InkOverlay::buildFrom( const NimblePixMap& map ) {
+void InkOverlay::buildFrom(const NimblePixMap& map) {
     myWidth=map.width();
     myHeight=map.height();
-    NimblePixel transparent = map.pixelAt(0,0);
-    for( int pass=0; pass<2; ++pass ) {
+    const NimblePixel transparent = map.pixelAt(0, 0);
+    // First pass counts number of runs; second pass remembers them.
+    for (int pass=0; pass<2; ++pass) {
         size_t count = 0;
         unsigned oldY = 0;
-        for( int y=0; y<map.height(); ++y )
-            for( int x=0; x<map.width(); ++x ) 
-                if( map.pixelAt(x,y)!=transparent ) {
-                    while( y-oldY>runType::dyMax ) {
-                        if( pass==1 ) {
+        for (int y=0; y<map.height(); ++y)
+            for (int x=0; x<map.width(); ++x)
+                if (map.pixelAt(x, y)!=transparent) {
+                    // Vertical jump is more than max expressible by runType::dy.
+                    // Create empty runs to advance y position
+                    while (y-oldY > runType::dyMax) {
+                        if (pass==1) {
                             runType* r = myArray+count;
                             r->color = 0;   // Color not used
-                            r->x = 0; 
+                            r->x = 0;
                             r->dy = runType::dyMax;
-                            r->len = 0;    
+                            r->len = 0;
                         }
                         oldY += runType::dyMax;
                         ++count;
                     }
-                    NimblePixel* p = (NimblePixel*)map.at(x,y);
-                    NimblePixel c = map.pixelAt(x,y);
+                    // Start run at (x,y)
+                    const NimblePixel* p = (NimblePixel*)map.at(x, y);
+                    NimblePixel c = map.pixelAt(x, y);
                     int len = 1;
-                    while( x+len<map.width() && p[len]==c ) 
+                    while (x+len<map.width() && p[len]==c)
                         ++len;
-                    if( pass==1 ) {
+                    if (pass==1) {
                         runType* r = myArray+count;
                         r->color = c;
                         r->x = x;
@@ -265,8 +269,8 @@ void InkOverlay::buildFrom( const NimblePixMap& map ) {
                     oldY = y;
                     ++count;
                 }
-        if( pass==0 ) {
-            Assert( !myArray );
+        if (pass==0) {
+            Assert(!myArray);
             myArray = new runType[count];
             mySize = count;
         } else {
@@ -275,14 +279,14 @@ void InkOverlay::buildFrom( const NimblePixMap& map ) {
     }
 }
 
-void InkOverlay::drawOn( NimblePixMap& map, int left, int top ) const {
-    runType* end = myArray+mySize;
-    unsigned y = 0;
-    for( runType* r=myArray; r<end; ++r ) {
+void InkOverlay::drawOn(NimblePixMap& map, int left, int top) const {
+    const runType* end = myArray+mySize;
+    uint32_t y = 0;
+    for (const runType* r=myArray; r<end; ++r) {
         y += r->dy;
-        NimblePixel* p = (NimblePixel*)map.at(left+r->x,top+y);
+        NimblePixel* p = (NimblePixel*)map.at(left+r->x, top+y);
         NimblePixel c = r->color;
-        for( unsigned len=r->len; len>0; --len )  
+        for (uint32_t len=r->len; len>0; --len)
             *p++ = c;
     }
 }

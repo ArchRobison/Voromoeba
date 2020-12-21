@@ -1,4 +1,4 @@
-/* Copyright 2011-2013 Arch D. Robison 
+/* Copyright 2011-2020 Arch D. Robison 
 
    Licensed under the Apache License, Version 2.0 (the "License"); 
    you may not use this file except in compliance with the License. 
@@ -113,9 +113,9 @@ void Splash::draw( NimblePixMap& window ) {
     for( size_t k=0; k<N_Button; ++k ) {
 		VoronoiText& b = ButtonText[k];
         Point p = SplashViewTransform.transform(ButtonCircle[k].center()) - Center(b);
-        a = ButtonText[k].assignAnts( a, p );
+        a = ButtonText[k].copyToAnts( a, p );
 	}
-	a = SplashBackground.assignAnts(a,SplashViewTransform);
+	a = SplashBackground.copyToAnts(a,SplashViewTransform);
     Ant::closeBufferAndDraw( window, region, a, true );
 #if 0
 	// Code for showing centers

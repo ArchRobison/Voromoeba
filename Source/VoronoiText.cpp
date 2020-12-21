@@ -157,7 +157,7 @@ void VoronoiText::setLine( int i, const char* s ) {
         setChar( i, j,*s ? *s++ : ' ' );
 }
 
-Ant* VoronoiText::assignAnts( Ant* a, Point upperLeft, float scale ) {
+Ant* VoronoiText::copyToAnts( Ant* a, Point upperLeft, float scale ) {
     if( myOldPalette[0]!=myPalette[0] || myOldPalette[1]!=myPalette[1] ) {
         for( int i=0; i<myHeight; ++i )
             for( int j=0; j<myWidth; ++j ) 
@@ -190,7 +190,7 @@ Ant* VoronoiText::assignAnts( Ant* a, Point upperLeft, float scale ) {
 
 void VoronoiText::drawOn( NimblePixMap& window, const CompoundRegion& region, Point upperLeft, float scale ) {
     Ant* a = Ant::openBuffer();
-    a = assignAnts( a, upperLeft, scale );
+    a = copyToAnts( a, upperLeft, scale );
     Ant::closeBufferAndDraw( window, region, a, false );
 }
 
@@ -199,7 +199,7 @@ void VoronoiText::drawOn( NimblePixMap& window, int x, int y, float scale, bool 
     region.buildRectangle(Point(0,0),Point(window.width(),window.height()));
     Assert( region.assertOkay() );
     Ant* a = Ant::openBuffer();
-    a = assignAnts( a, Point(x,y), scale );
+    a = copyToAnts( a, Point(x,y), scale );
     Assert( region.assertOkay() );
     Ant::closeBufferAndDraw( window, region, a, compose );
 }
@@ -241,7 +241,7 @@ int VoronoiCounter::operator+=( int addend ) {
     return myValue;
 }
 
-Ant* VoronoiCounter::assignAnts( NimblePixMap& window, CompoundRegion region, Ant* a, int x_, int y_ ) {
+Ant* VoronoiCounter::copyToAnts( NimblePixMap& window, CompoundRegion region, Ant* a, int x_, int y_ ) {
     for( const auto* b = myBug.begin(); b!=myBug.end(); ++b, ++a ) 
         a->assign( b->pos+Point(x_,y_), b->color );
     return a;
@@ -290,8 +290,8 @@ void VoronoiMeter::drawOn( NimblePixMap& window, int x, int y ) {
     }
 
     Ant* a = Ant::openBuffer();
-    a = myText.assignAnts( a, Point(x, y+height()/2) );
-    a = myLives.assignAnts( window, region, a, x, y );
-    a = myMissiles.assignAnts( window, region, a, x+width()/2, y+height()/2 );
+    a = myText.copyToAnts( a, Point(x, y+height()/2) );
+    a = myLives.copyToAnts( window, region, a, x, y );
+    a = myMissiles.copyToAnts( window, region, a, x+width()/2, y+height()/2 );
     Ant::closeBufferAndDraw( window, region, a, false );
 }

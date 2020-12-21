@@ -1,4 +1,4 @@
-/* Copyright 2011-2013 Arch D. Robison 
+/* Copyright 2011-2020 Arch D. Robison 
 
    Licensed under the Apache License, Version 2.0 (the "License"); 
    you may not use this file except in compliance with the License. 
@@ -44,7 +44,7 @@ void Help::draw( NimblePixMap& window ) {
     CompoundRegion region;
     region.buildRectangle( Point(0,0), Point(window.width(),window.height()) ); 
     Ant* a = Ant::openBuffer();
-    a = HelpBackground.assignAnts(a,HelpViewTransform);
+    a = HelpBackground.copyToAnts(a,HelpViewTransform);
     Ant::closeBufferAndDraw( window, region, a, true );
     TheHelp.drawOn(window,Max((window.width()-TheHelp.width())/2,0),Max((window.height()-TheHelp.height())/2,0));
 }

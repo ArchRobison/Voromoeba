@@ -1,15 +1,15 @@
-/* Copyright 2011-2013 Arch D. Robison 
+/* Copyright 2011-2020 Arch D. Robison
 
-   Licensed under the Apache License, Version 2.0 (the "License"); 
-   you may not use this file except in compliance with the License. 
-   You may obtain a copy of the License at 
-   
-       http://www.apache.org/licenses/LICENSE-2.0 
-       
-   Unless required by applicable law or agreed to in writing, software 
-   distributed under the License is distributed on an "AS IS" BASIS, 
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-   See the License for the specific language governing permissions and 
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
    limitations under the License.
  */
 
@@ -70,9 +70,9 @@ void DoShowHelp() {
 
 void EndPlay() {
     ShowAnts = false;
-    if( int score = TheScoreMeter.score() ) {
+    if (int score = TheScoreMeter.score()) {
         TheVanityBoard.newScore(TheScoreMeter.score());
-        if( TheVanityBoard.isEnteringName() ) {
+        if (TheVanityBoard.isEnteringName()) {
             ShowWhat = ShowVanity;
             return;
         }
@@ -80,67 +80,67 @@ void EndPlay() {
     ShowWhat = ShowSplash;
 }
 
-inline bool IsKeyDown( int key0, int key1 ) {
+inline bool IsKeyDown(int key0, int key1) {
     return HostIsKeyDown(key0)||HostIsKeyDown(key1);
 }
 
-static void UpdateView( NimblePixMap& screen, float dt ) {
+static void UpdateView(NimblePixMap& screen, float dt) {
     const float Pi = 3.1415926535f;
     float torque = 0;
-    if( IsKeyDown( HOST_KEY_RIGHT, 'd') ) {
+    if (IsKeyDown(HOST_KEY_RIGHT, 'd')) {
         torque = -Pi/5;
-    } 
-    if( IsKeyDown( HOST_KEY_LEFT, 'a' ) ) {
+    }
+    if (IsKeyDown(HOST_KEY_LEFT, 'a')) {
         torque += Pi/5;
     }
     float forward = 0;
-    if( IsKeyDown( HOST_KEY_UP,'w' ) ) {
+    if (IsKeyDown(HOST_KEY_UP, 'w')) {
         forward+=1.0f;
-    } 
-    if( IsKeyDown( HOST_KEY_DOWN, 's' ) ) {
+    }
+    if (IsKeyDown(HOST_KEY_DOWN, 's')) {
         forward-=1.0f;
     }
-    switch( ShowWhat ) {
+    switch (ShowWhat) {
         case ShowPonds:
-            World::update( screen, dt, forward, torque );
+            World::update(screen, dt, forward, torque);
             break;
         case ShowHelp:
-            Help::update(dt,torque*dt);
+            Help::update(dt, torque*dt);
             break;
         case ShowSplash:
-            Splash::update(dt,torque*dt);
+            Splash::update(dt, torque*dt);
             break;
     }
 }
 
-static void Update( NimblePixMap& screen ) {
+static void Update(NimblePixMap& screen) {
     static double T0;
     double t1 = HostClockTime();
     float dt = t1-T0;
     T0 = t1;
-    if( dt==t1 ) 
+    if (dt==t1)
         return;
-    if( ShowWhat==ShowPonds ) {
+    if (ShowWhat==ShowPonds) {
     } else {
         // Update slush sounds, otherwise they can be stuck on until the ponds view is shown again.
         UpdateSlush(dt);
     }
-    switch( ShowWhat ) {
-        case ShowPonds: 
+    switch (ShowWhat) {
+        case ShowPonds:
         case ShowSplash:
         case ShowHelp:
             // These are all views that involve motion control.
-            UpdateView( screen, dt );
+            UpdateView(screen, dt);
             break;
         case ShowAbout:
-            About::update( dt );
+            About::update(dt);
             break;
     }
 }
 
 static bool ShowCharacterSet = false;
 
-static DigitalMeter FrameRateMeter(5,1);
+static DigitalMeter FrameRateMeter(5, 1);
 static bool ShowFrameRate;
 
 static float EstimateFrameRate() {
@@ -149,24 +149,24 @@ static float EstimateFrameRate() {
     static double estimate;
     ++count;
     double t1 = HostClockTime();
-    if( t1-t0>=1.0 ) {
+    if (t1-t0>=1.0) {
         estimate = count/(t1-t0);
         t0 = t1;
         count = 0;
-    } 
+    }
     return estimate;
 }
 
-static void Draw( NimblePixMap& screen ) {
+static void Draw(NimblePixMap& screen) {
     Ant::clearBuffer();
-    switch( ShowWhat ) {
+    switch (ShowWhat) {
         case ShowPonds: {
             extern VoronoiMeter TheScoreMeter;
 #if !WIZARD_ALLOWED
             ShowAnts &= TheScoreMeter.score()<20;
 #endif
             World::draw(screen);
-            TheScoreMeter.drawOn( screen, 0, screen.height()-TheScoreMeter.height() );
+            TheScoreMeter.drawOn(screen, 0, screen.height()-TheScoreMeter.height());
             break;
         }
         case ShowVanity: {
@@ -186,60 +186,60 @@ static void Draw( NimblePixMap& screen ) {
             break;
         }
     }
-    if( ShowFrameRate ) {
-        FrameRateMeter.setValue( EstimateFrameRate() );
-        FrameRateMeter.drawOn( screen, 0, 0 ); 
+    if (ShowFrameRate) {
+        FrameRateMeter.setValue(EstimateFrameRate());
+        FrameRateMeter.drawOn(screen, 0, 0);
     }
 }
 
 static bool InitWorldFlag =false;
 
-void GameUpdateDraw( NimblePixMap& screen, NimbleRequest request ) {
-    if( InitWorldFlag ) { 
-        Finale::reset(); 
-        World::initialize( screen );
+void GameUpdateDraw(NimblePixMap& screen, NimbleRequest request) {
+    if (InitWorldFlag) {
+        Finale::reset();
+        World::initialize(screen);
         InitWorldFlag = false;
     }
-    if( request &  NimbleUpdate ) {
+    if (has(request, NimbleRequest::update)) {
         Update(screen);
     }
-    if( request&NimbleDraw ) {
+    if (has(request, NimbleRequest::draw)) {
 #if 0
         // Clear screen - used during development
-        screen.draw( NimbleRect(0,0,screen.width(),screen.height()), NimblePixel(-1));
+        screen.draw(NimbleRect(0, 0, screen.width(), screen.height()), NimblePixel(-1));
 #endif
         Draw(screen);
     }
 }
 
-void GameMouseMove( const NimblePoint& point ) {
+void GameMouseMove(const NimblePoint& point) {
     // FIXME
 }
 
-void GameMouseButtonDown( const NimblePoint& point, int k ) {
+void GameMouseButtonDown(const NimblePoint& point, int k) {
     // FIXME
 }
 
-void GameMouseButtonUp( const NimblePoint& point, int k ) {
+void GameMouseButtonUp(const NimblePoint& point, int k) {
     // FIXME
 }
 
-void GameKeyDown( int key ) {
-    if( key==HOST_KEY_ESCAPE ) {
+void GameKeyDown(int key) {
+    if (key==HOST_KEY_ESCAPE) {
         HostExit();
         return;
     }
-    if( TheVanityBoard.isEnteringName() ) {
-        Assert( ShowWhat==ShowVanity );
-        TheVanityBoard.enterNextCharacterOfName( key );
+    if (TheVanityBoard.isEnteringName()) {
+        Assert(ShowWhat==ShowVanity);
+        TheVanityBoard.enterNextCharacterOfName(key);
         return;
     }
     // Canonicalize to lower case
-    if( 'A'<=key && key<='Z' ) 
+    if ('A'<=key && key<='Z')
         key = key-'A'+'a';
     // Keys whose meaning is independent what is being shown
-    switch( key ) {
-        case 'f': 
+    switch (key) {
+        case 'f':
             ShowFrameRate = !ShowFrameRate;
             break;
         case 'g':
@@ -256,25 +256,25 @@ void GameKeyDown( int key ) {
 #if WIZARD_ALLOWED
 #if 0 /* Need different letter */
         case 'g':
-            if( IsWizard ) {
+            if (IsWizard) {
                 static unsigned x = 0;
-                switch( x++%3 ) {
-                case 0: 
-                    PlaySound( SOUND_OPEN_GATE );
-                    break;
-                case 1:
-                    PlaySound( SOUND_CLOSE_GATE );
-                    break;
-                case 2:
-                    PlaySound( SOUND_SUFFERED_HIT );
-                    break;
+                switch (x++%3) {
+                    case 0:
+                        PlaySound(SOUND_OPEN_GATE);
+                        break;
+                    case 1:
+                        PlaySound(SOUND_CLOSE_GATE);
+                        break;
+                    case 2:
+                        PlaySound(SOUND_SUFFERED_HIT);
+                        break;
                 }
             }
             break;
 #endif
 #if 0
         case 'i':           // Need different letter
-            if( IsWizard ) {
+            if (IsWizard) {
                 ShowWhat = ShowVanity;
                 TheVanityBoard.showTestImage(true);
             }
@@ -295,8 +295,8 @@ void GameKeyDown( int key ) {
         }
 #if 0 
         case 't':           // Need different letter
-            if( IsWizard ) {
-                Self.startTipsey(); 
+            if (IsWizard) {
+                Self.startTipsey();
             }
             break;
 #endif
@@ -306,7 +306,7 @@ void GameKeyDown( int key ) {
         }
         case '1': {
             // For testing end of game
-            if( IsWizard ) {
+            if (IsWizard) {
                 DoShowVanity();
                 TheVanityBoard.newScore(rand()%100);
             }
@@ -315,15 +315,15 @@ void GameKeyDown( int key ) {
 #endif
     }
     // Keys whose meaning depends on what is being shown
-    switch( ShowWhat ) {
+    switch (ShowWhat) {
         case ShowSplash:
-            switch( key ) {
+            switch (key) {
                 case HOST_KEY_RETURN:
                 case ' ':
                     Splash::doSelectedAction();
                     break;
                 case 'i':           // "info"
-                    DoShowAbout(); 
+                    DoShowAbout();
                     break;
                 case 'h':           // "help"
                     DoShowHelp();
@@ -334,11 +334,11 @@ void GameKeyDown( int key ) {
             }
             break;
         case ShowPonds:
-            switch( key ) {
+            switch (key) {
 #if WIZARD_ALLOWED
                 case 'j':
                 case 'k':
-                    if( IsWizard )
+                    if (IsWizard)
                         JumpToPond(key=='j'? 1 : 5);
                     break;
                 case 'h':           // Hari-kiri
@@ -352,31 +352,31 @@ void GameKeyDown( int key ) {
                 case '0':
                 case '-':
                 case '=':
-                    if( IsWizard )
-                        Zoom( key=='0' ? 0.0f : key=='-' ? 0.5f : 2.0f );
+                    if (IsWizard)
+                        Zoom(key=='0' ? 0.0f : key=='-' ? 0.5f : 2.0f);
                     break;
 #endif
                 case ' ': {
-                    if( !Finale::isRunning() )
+                    if (!Finale::isRunning())
                         Missiles::tryFire();
-                    else if( Finale::pastMourning() )
+                    else if (Finale::pastMourning())
                         EndPlay();
                     break;
                 }
             }
             break;
-        case ShowAbout: 
-        case ShowVanity: 
+        case ShowAbout:
+        case ShowVanity:
         case ShowHelp: {
-            switch( key ) {
-                 case ' ':
-                 case 't':
+            switch (key) {
+                case ' ':
+                case 't':
                     DoShowSplash();
                     break;
             }
             break;
         }
-     }
+    }
 }
 
 void DoStartPlaying() {
@@ -385,22 +385,22 @@ void DoStartPlaying() {
     Ant::switchBuffer();
 }
 
-void GameResizeOrMove( NimblePixMap& window ) {
-    InitializeVoronoiText( window );
-    Splash::initialize( window );
+void GameResizeOrMove(NimblePixMap& window) {
+    InitializeVoronoiText(window);
+    Splash::initialize(window);
     InitializeVanity();
-    About::initialize( window );
-    Help::initialize( window );
-    Finale::initialize( window );
+    About::initialize(window);
+    Help::initialize(window);
+    Finale::initialize(window);
     HostShowCursor(false);
 }
 
 const char* GameTitle() {
     return "Voromoeba 1.2"
 #if ASSERTIONS
-           " ASSERTIONS"
+        " ASSERTIONS"
 #endif
-    ;
+        ;
 }
 
 bool GameInitialize() {

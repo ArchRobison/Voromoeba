@@ -1,4 +1,4 @@
-/* Copyright 2011-2013 Arch D. Robison 
+/* Copyright 2011-2020 Arch D. Robison 
 
    Licensed under the Apache License, Version 2.0 (the "License"); 
    you may not use this file except in compliance with the License. 
@@ -43,7 +43,7 @@ void Finale::update( float dt ) {
     }
 }
 
-Ant* Finale::assignAnts( Ant* a, NimblePixMap& window, Point p, Point q ) {
+Ant* Finale::copyToAnts( Ant* a, NimblePixMap& window, Point p, Point q ) {
     Parallelogram r(Point(0,0),Point(window.width(),0),Point(window.width(),window.height()));
     p = World::viewTransform.transform(p);
     Assert( r.contains(p) );
@@ -52,5 +52,5 @@ Ant* Finale::assignAnts( Ant* a, NimblePixMap& window, Point p, Point q ) {
     if( Dist2(v)==0 ) 
         v = Point(0,0.001f);
     Point o = p+r.intercept( p, v )*0.5f*v;
-    return FinaleText.assignAnts(a,o-0.5f*Point(FinaleText.width(),FinaleText.height()));
+    return FinaleText.copyToAnts(a,o-0.5f*Point(FinaleText.width(),FinaleText.height()));
 }

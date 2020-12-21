@@ -1,4 +1,4 @@
-/* Copyright 2011-2013 Arch D. Robison 
+/* Copyright 2011-2020 Arch D. Robison 
 
    Licensed under the Apache License, Version 2.0 (the "License"); 
    you may not use this file except in compliance with the License. 
@@ -33,20 +33,20 @@ public:
     OutlinedColor color;
 };
 
-//! Array type that never moves its items, constructs them by zeroing, and assumes type T has a trivial destructor.
+//! Array of Bug or subclass thereof.
+//!
+//! Class T should be Bug or a subclass of Bug, and can be default-constructed via zero initialization.
 template<class T>
-class BasicArray : NoCopy {
+class BugArray : NoCopy {
     //! Pointer to storage for items
-    T* myArray;
+    T* myArray = nullptr;
     //! Number of items in the array
-    size_t mySize;
-#if ASSERTIONS
+    size_t mySize = 0;
     //! Maximum number of items that storage can hold
-    size_t myPhysicalSize;
-#endif
+    size_t myPhysicalSize = 0;
 public:
-    BasicArray() : myArray(NULL), mySize(0) {}
-    ~BasicArray() { delete[] myArray; }
+    BugArray() = default;
+    ~BugArray() { delete[] myArray; }
     size_t size() const { return mySize; }
     void reserve(size_t maxSize);
     const T* begin() const { return myArray; }
@@ -59,7 +59,7 @@ public:
     }
     //! Resize array. 
     //! Does not initialize new elements if growing.
-    //! The new size must not exceed the reserved sized. 
+    //! The new size must not exceed the reserved size. 
     void resize(size_t newSize) {
         Assert(newSize<=myPhysicalSize);
         mySize = newSize;
@@ -68,7 +68,8 @@ public:
         return (*this)[size()-1];
     }
     void popBack() {
-        resize(size()-1);
+        Assert(mySize > 0);
+        --mySize;
     }
 
     //! Swap ith and jth elements
@@ -76,24 +77,25 @@ public:
         std::swap((*this)[i], (*this)[j]);
     }
 
-    Ant* assignAnts(Ant* a, const ViewTransform& v) const;
+    //! Copy to Ants using given transform.
+    Ant* copyToAnts(Ant* a, const ViewTransform& v) const;
 };
 
 template<typename T>
-void BasicArray<T>::reserve(size_t maxSize) {
+void BugArray<T>::reserve(size_t maxSize) {
     delete[] myArray;
     myArray = new T[maxSize];
-#if ASSERTIONS
     myPhysicalSize = maxSize;
-#endif
     mySize = maxSize;
     std::memset(myArray, 0, maxSize*sizeof(T));
 }
 
 template<typename T>
-Ant* BasicArray<T>::assignAnts(Ant* a, const ViewTransform& v) const {
-    for (const T* b = begin(); b!=end(); ++b, ++a) {
-        a->assign(v.transform(b->pos), b->color);
+Ant* BugArray<T>::copyToAnts(Ant* a, const ViewTransform& v) const {
+    for (const auto& b : *this)
+    {
+        a->assign(v.transform(b.pos), b.color);
+        ++a;
     }
     return a;
 }

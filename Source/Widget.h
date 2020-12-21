@@ -90,15 +90,20 @@ private:
     int8_t myNdecimal;
 };
 
-class InkOverlay : public BuiltFromResourcePixMap {
+//! Image that is overlayed on top of another image.
+//!
+//! Optimized for long transparent runs.
+class InkOverlay final : public BuiltFromResourcePixMap {
 public:
+    //! Upper left pixel of resource defines the transparent color.
+    //! Resource must not be more than 4095 pixels wide.
     InkOverlay(const char* resourceName) :
         BuiltFromResourcePixMap(resourceName),
         myWidth(0),
         myHeight(0) {
     }
-    ~InkOverlay() {delete[] myArray;}
-    void drawOn( NimblePixMap& map, int top, int bottom ) const;
+    ~InkOverlay() { delete[] myArray; }
+    void drawOn(NimblePixMap& map, int top, int bottom) const;
     int height() const {
         Assert(myWidth>=32);
         return myHeight;
@@ -108,19 +113,28 @@ public:
         return myWidth;
     }
 protected:
-    void buildFrom(const NimblePixMap& map) override;
+    void buildFrom(const NimblePixMap& map) final;
+
 private:
-    InkOverlay( const InkOverlay& );
-    void operator=( const InkOverlay& );
+    InkOverlay(const InkOverlay&) = delete;
+    void operator=(const InkOverlay&) = delete;
+
+    //! Describes horizontal run of pixels with same color.
     struct runType {
         static const unsigned dyMax = 255;
         NimblePixel color;
-        unsigned x:12, dy:8;
-        unsigned len:12;
+        //! x coordinate where run starts
+        uint32_t x:12;
+        //! delta for y coordinate relative to previous run
+        uint32_t dy:8;
+        //! Length of run
+        uint32_t len:12;
     };
     runType* myArray;
-    int myWidth, myHeight;
+    //! Number of elements in myArray
     size_t mySize;
+    //! Dimensions of the overlay in pixels.
+    int32_t myWidth, myHeight;
 };
 
 #endif /* Widget_H */
