@@ -17,7 +17,6 @@
  Support for writing a trace file. 
 *******************************************************************************/
 
-#pragma once
 #ifndef TraceLib_H
 #define TraceLib_H
 

@@ -13,24 +13,25 @@
    limitations under the License.
  */
 
-#pragma once
 #include "Geometry.h"
 #include "Beetle.h"
+#include <cstdint>
 
-enum SoundKind {
-    SOUND_DESTROY_ORANGE,
-    SOUND_DESTROY_PREDATOR,
-    SOUND_DESTROY_SWEETIE,
-    SOUND_EAT_PLANT,
-    SOUND_EAT_ORANGE,
-    SOUND_SUFFERED_HIT,
-    SOUND_SELF,
-    SOUND_MISSILE,
-    SOUND_OPEN_GATE,
-    SOUND_CLOSE_GATE,
-    SOUND_SMOOCH,
-    N_SOUND
+enum class SoundKind : int8_t {
+    destroyOrange,
+    destroyPredator,
+    destroySweetie,
+    eatPlant,
+    eatOrange,
+    sufferHit,
+    self,
+    missile,
+    openGate,
+    closeGate,
+    smooch
 };
+
+constexpr size_t N_SoundKind = size_t(SoundKind::smooch) + 1;
 
 //! Play sound of kind k coming from point p.
 void PlaySound( SoundKind k, Point p=Point(0,1) ); 

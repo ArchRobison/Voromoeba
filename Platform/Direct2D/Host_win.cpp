@@ -336,7 +336,7 @@ static void SetPresentParameters(D3DPRESENT_PARAMETERS& present, bool exclusiveM
     ZeroMemory(&present, sizeof(D3DPRESENT_PARAMETERS));
     present.BackBufferCount           = 2;
     present.SwapEffect                = D3DSWAPEFFECT_DISCARD;
-    present.BackBufferFormat          = D3DFMT_X8R8G8B8;
+    present.BackBufferFormat          = D3DFMT_X8R8G8B8; //@ DXGI_FORMAT_B8G8R8X8_UNORM
     present.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
     present.Windowed                  = !exclusiveMode;
 

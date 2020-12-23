@@ -13,6 +13,9 @@
    limitations under the License.
  */
 
+#ifndef Finale_H
+#define Finale_H
+
 class NimblePixMap;
 class Point;
 class Ant;
@@ -32,3 +35,5 @@ public:
 private:
     static float myTime;
 };
+
+#endif /* Finale_H */

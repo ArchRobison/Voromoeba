@@ -17,7 +17,6 @@
  Various widgets for the screen
 *******************************************************************************/
 
-#pragma once
 #ifndef Widget_H
 #define Widget_H
 

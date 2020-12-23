@@ -14,6 +14,7 @@
  */
 
 #include "Config.h"
+#include "Game.h"
 #include "Pond.h"
 #include "Splash.h"
 #include "Missile.h"
@@ -26,6 +27,7 @@
 #include "Help.h"
 #include "Self.h"
 #include "Sound.h"
+#include "Synthesizer.h"
 #include "Utility.h"
 #include "Vanity.h"
 #include "VoronoiText.h"
@@ -212,18 +214,6 @@ void GameUpdateDraw(NimblePixMap& screen, NimbleRequest request) {
     }
 }
 
-void GameMouseMove(const NimblePoint& point) {
-    // FIXME
-}
-
-void GameMouseButtonDown(const NimblePoint& point, int k) {
-    // FIXME
-}
-
-void GameMouseButtonUp(const NimblePoint& point, int k) {
-    // FIXME
-}
-
 void GameKeyDown(int key) {
     if (key==HOST_KEY_ESCAPE) {
         HostExit();
@@ -260,13 +250,13 @@ void GameKeyDown(int key) {
                 static unsigned x = 0;
                 switch (x++%3) {
                     case 0:
-                        PlaySound(SOUND_OPEN_GATE);
+                        PlaySound(SoundKind::openGate);
                         break;
                     case 1:
-                        PlaySound(SOUND_CLOSE_GATE);
+                        PlaySound(SoundKind::closeGate);
                         break;
                     case 2:
-                        PlaySound(SOUND_SUFFERED_HIT);
+                        PlaySound(SoundKind::sufferHit);
                         break;
                 }
             }
@@ -281,12 +271,12 @@ void GameKeyDown(int key) {
             break;
 #endif
         case 'o': {
-            PlaySound(SOUND_DESTROY_ORANGE);
+            PlaySound(SoundKind::destroyOrange);
             break;
         }
         case 'l': {
             TheScoreMeter.addLife(1);
-            PlaySound(SOUND_SMOOCH);
+            PlaySound(SoundKind::smooch);
             break;
         }
         case 'm': {
@@ -301,7 +291,7 @@ void GameKeyDown(int key) {
             break;
 #endif
         case 'y': {
-            PlaySound(SOUND_EAT_ORANGE);
+            PlaySound(SoundKind::eatOrange);
             break;
         }
         case '1': {
@@ -392,7 +382,6 @@ void GameResizeOrMove(NimblePixMap& window) {
     About::initialize(window);
     Help::initialize(window);
     Finale::initialize(window);
-    HostShowCursor(false);
 }
 
 const char* GameTitle() {
@@ -403,8 +392,36 @@ const char* GameTitle() {
         ;
 }
 
-bool GameInitialize() {
+bool GameInitialize(int /*width*/, int /*height*/) {
     BuiltFromResource::loadAll();
     ConstructSounds();
     return true;
+}
+
+namespace {
+
+const size_t N_OutputChannel = 2;
+
+typedef float Accumulator[N_OutputChannel][GameGetSoundSamplesMax/N_OutputChannel];
+
+//! Convert floating-point samples in src[0:N_Channel-1][0:n-1] to interleaved samples in dst[0:n-1],
+//! and clear src.
+void ConvertAccumulatorToSamples(float dst[], Accumulator& src, uint32_t n) {
+    float* d = dst;
+    for (uint32_t i=0; i<n; ++i)
+        for (uint32_t j=0; j<N_OutputChannel; ++j) {
+            *d++ = src[j][i];
+            src[j][i] = 0;
+        }
+}
+
+} // (anonymous)
+
+void GameGetSoundSamples(float* samples, uint32_t nSamples) {
+    Assert(nSamples % 2 == 0);
+    Assert(nSamples <= GameGetSoundSamplesMax);
+    const uint32_t n = nSamples / 2;
+    static Accumulator temp;
+    Synthesizer::OutputInterruptHandler(temp[0], temp[1], n);
+    ConvertAccumulatorToSamples(samples, temp, n);
 }

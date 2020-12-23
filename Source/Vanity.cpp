@@ -230,6 +230,8 @@ void VanityBoard::showTestImage( bool flag ) {
 #endif
 
 void InitializeVanity() {
+#if HAVE_VANITY
     TheVanityBoard.readFromFile();
     TheVanityText.initialize(13,5+1+VAIN_NAME_MAX);
+#endif
 }

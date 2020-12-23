@@ -17,7 +17,6 @@
  Assertion checking
 *******************************************************************************/
 
-#pragma once
 #ifndef Assert_H
 #define Assert_H
 
@@ -37,7 +36,7 @@
 #include <cassert>
 #define Assert assert
 #else
-void AssertionFailure(const char* filename_, int line, const char* expression);
+[[noreturn]] void AssertionFailure(const char* filename_, int line, const char* expression);
 #define Assert(predicate) ((predicate)?(void)0:(AssertionFailure(__FILE__,__LINE__,#predicate)))
 #endif
 template<typename T> inline void Poison(T*& ptr) {ptr=(T*)-1;}

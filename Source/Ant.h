@@ -13,7 +13,6 @@
    limitations under the License.
  */
 
-#pragma once
 #ifndef Ant_H
 #define Ant_H
 
@@ -35,9 +34,11 @@ extern bool ShowAnts;
 class Ant : public Point {
 public:
     OutlinedColor color;
+    //! Functor for sorting by x coordinate
     struct lessX {
         bool operator()(const Ant& a, const Ant& b) const { return a.x<b.x; }
     };
+    //! Functor for sorting by y coordinate
     struct lessY {
         bool operator()(const Ant& a, const Ant& b) const { return a.y<b.y; }
     };

@@ -21,11 +21,13 @@
 #define GAME_H
 
 #include "NimbleDraw.h"
+#include <cstdint>
 
- //! Must be called by host to initialize game.
- /** Initializes game-specific data structures.
-     Return true if successful, otherwise false. */
-bool GameInitialize();
+//! Must be called by host to initialize game for window of given size.
+//!
+//! Initializes game-specific data structures.
+//! Return true if successful, otherwise false. 
+bool GameInitialize(int width, int height);
 
 //! Called when user presses keyboard key.
 /** See HostIsKeyDown in Host.h for key codes. */
@@ -35,15 +37,6 @@ void GameKeyDown(int key);
 /** Defined by client. */
 const char* GameTitle();
 
-//! Called when mouse moves to new coordinate
-void GameMouseMove(const NimblePoint& point);
-
-//! Kth mouse button was pressed
-void GameMouseButtonDown(const NimblePoint& point, int k);
-
-//! Kth mouse buttom was released
-void GameMouseButtonUp(const NimblePoint& point, int k);
-
 //! Update and/or draw game state, depending on flags set in request.
 void GameUpdateDraw(NimblePixMap& map, NimbleRequest request);
 
@@ -51,11 +44,14 @@ void GameUpdateDraw(NimblePixMap& map, NimbleRequest request);
 /** map contains the new size and position of the window. */
 void GameResizeOrMove(NimblePixMap& map);
 
-#if HAVE_SOUND
-const size_t GameSamplesPerSec = 44100;
-typedef short GameSoundSample;
-void GamePlaySound(GameSoundSample* begin, size_t length, float relativePitch);
-#endif /* HAVE_SOUND */
+//! Default sample rate
+constexpr size_t GameSoundSamplesPerSec = 44100;
+
+//! Max possible value of nSamples parameter of GameGetSoundSamples.
+constexpr size_t GameGetSoundSamplesMax = 8192;
+
+//! Called by host layer.
+void GameGetSoundSamples(float samples[], uint32_t nSamples);
 
 #if HAVE_GAME_FILES
 

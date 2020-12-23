@@ -74,7 +74,7 @@ void SelfType::update( float dt, float forward, float torque ) {
     // Update lifetime
     lifetime -= dt;
     if( wasAlive && !isAlive() ) {
-        PlaySound( SOUND_DESTROY_PREDATOR );    // FIXME - have different sound
+        PlaySound( SoundKind::destroyPredator );    // FIXME - have different sound
         Finale::start( "You died" ); 
     }
 

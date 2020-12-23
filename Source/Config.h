@@ -1,4 +1,4 @@
-/* Copyright 1996-2010 Arch D. Robison 
+/* Copyright 1996-2020 Arch D. Robison 
 
    Licensed under the Apache License, Version 2.0 (the "License"); 
    you may not use this file except in compliance with the License. 
@@ -17,7 +17,6 @@
  Configuration parameters for Voromoeba
 *******************************************************************************/
 
-#pragma once
 #ifndef Config_H
 #define Config_H
 

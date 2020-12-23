@@ -17,6 +17,9 @@
   OS specific services on the host that are called from OS-independent game code.
  *******************************************************************************/
 
+//! Set to 1 if platform supports playing sounds.
+#define HAVE_SOUND_OUTPUT 1
+
  //! Return current absolute time in seconds.
  /** Only the difference between two calls are meaningful, because the
      definition of 0 is platform dependent. */
@@ -35,7 +38,8 @@ enum {
     HOST_KEY_LEFT = 256,
     HOST_KEY_RIGHT,
     HOST_KEY_UP,
-    HOST_KEY_DOWN
+    HOST_KEY_DOWN,
+    HOST_KEY_LAST           // Value for declaring arrays
 };
 
 //! Return true if specified key is down, false otherwise.
@@ -44,11 +48,6 @@ enum {
 //! The value of key should be lowercase if it is alphabetic. 
 bool HostIsKeyDown(int key);
 
-//! Called by client game to either show (show=true) or hide (show=false) the cursor
-//!
-//! Not used by Seismic Duck, but retained because Frequon Invaders needs it. 
-void HostShowCursor(bool show);
-
 //! Request termination of the game.
 void HostExit();
 
@@ -56,9 +55,10 @@ class BuiltFromResourcePixMap;
 
 //! Load a bitmap resource.
 //!
-//! Construct map from resource item.resourceName() and invoke item.buildFrom(map) */
+//! Construct map from resource item.resourceName() and invoke item.buildFrom(map)
 void HostLoadResource(BuiltFromResourcePixMap& item);
 
+#if HAVE_SOUND_OUTPUT
 class BuiltFromResourceWaveform;
 
 //! Load waveform resource.
@@ -66,9 +66,12 @@ class BuiltFromResourceWaveform;
 //! Construct waveform from resource item.resourceName().
 //! Call item.buildFrom(waveform,size)
 void HostLoadResource(BuiltFromResourceWaveform& item);
+#endif
 
 //! Get path to application data file to be shared across multiple users.
 const char* HostGetCommonAppData(const char* pathSuffix);
 
 //! Print warning message.  Current Windows implementation does not return.
+//!
+//! Intended for warning during startup.
 void HostWarning(const char* message);

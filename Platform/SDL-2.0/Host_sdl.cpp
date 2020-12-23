@@ -21,6 +21,7 @@ limitations under the License.
 #include <cstdio>
 #include <cstdlib>
 #include <string>
+#include <vector>
 #ifdef _WIN32
 #include <direct.h>
 #endif
@@ -71,6 +72,25 @@ void HostLoadResource(BuiltFromResourcePixMap& item) {
         std::free(cwd);
         ReportResourceError("IMG_Load", path.c_str(), IMG_GetError());
     }
+}
+
+void HostLoadResource(BuiltFromResourceWaveform& item) {
+#if defined(HOST_RESOURCE_PATH)
+    std::string path(HOST_RESOURCE_PATH);
+#else
+    std::string path("../../../Resource");
+#endif
+    path = path + "/" + item.resourceName() + ".wav";
+    FILE* f = std::fopen(path.c_str(), "rb");
+    Assert(f); // FIXME - should issue error message
+    std::fseek(f, 0L, SEEK_END);
+    const long size = std::ftell(f);
+    std::fseek(f, 0L, SEEK_SET);
+    std::vector<char> buffer(size);
+    const size_t n = std::fread(buffer.data(), 1, buffer.size(), f);
+    Assert(n == size); // FIXME - should issue error message
+    std::fclose(f);
+    item.buildFrom(buffer.data(), size);
 }
 
 double HostClockTime() {
@@ -143,16 +163,6 @@ static void PollEvents() {
                 GameKeyDown(HostKeyFromScanCode[event.key.keysym.scancode]);
                 break;
 
-                /* SDL_QUIT event (window close) */
-            case SDL_MOUSEMOTION:
-                GameMouseMove(NimblePoint(event.motion.x, event.motion.y));
-                break;
-            case SDL_MOUSEBUTTONDOWN:
-                GameMouseButtonDown(NimblePoint(event.button.x, event.button.y), 0);  // FIXME set button correctly
-                break;
-            case SDL_MOUSEBUTTONUP:
-                GameMouseButtonUp(NimblePoint(event.button.x, event.button.y), 0);  // FIXME set button correctly
-                break;
             case SDL_QUIT:
                 Quit = true;
                 break;
@@ -161,6 +171,30 @@ static void PollEvents() {
                 break;
         }
     }
+}
+
+static void CallbackAdaptor(void* userdata, Uint8* stream, int len) {
+    Assert(len % (2*sizeof(float)) == 0);
+    GameGetSoundSamples((float*)stream, len / sizeof(float));
+}
+
+static void InitializeSound() {
+    // Install audio callback
+    SDL_AudioSpec spec{};
+    spec.freq =  GameSoundSamplesPerSec;
+    spec.format = AUDIO_F32SYS;
+    spec.channels = 2;
+    spec.samples = 4096;
+    spec.callback = CallbackAdaptor;
+    SDL_AudioSpec obtained;
+    SDL_AudioDeviceID dev = SDL_OpenAudioDevice(NULL, 0, &spec, &obtained, /*allowed_changes=*/SDL_AUDIO_ALLOW_FORMAT_CHANGE);
+    if (dev == 0) {
+        const char* msg = SDL_GetError();
+        fprintf(stderr, "SDL_OpenAudioDevice: %s\n", msg);
+    }
+    Assert(dev >= 2);
+    // Start playing
+    SDL_PauseAudioDevice(dev, 0);
 }
 
 static const bool UseRendererForUnlimitedRate = true;
@@ -198,7 +232,7 @@ static bool RebuildRendererAndTexture(SDL_Window* window, int w, int h, SDL_Rend
 }
 
 int main(int argc, char* argv[]) {
-    if (SDL_Init(SDL_INIT_VIDEO) == -1) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == -1) {
         printf("Internal error: SDL_Init failed: %s\n", SDL_GetError());
         exit(1);
     }
@@ -226,6 +260,7 @@ int main(int argc, char* argv[]) {
         SDL_WINDOW_SHOWN
 #endif
     );
+    InitializeSound();
     InitializeKeyTranslationTables();
     ScreenFormat = SDL_AllocFormat(SDL_PIXELFORMAT_ARGB8888);
     if (GameInitialize(w, h)) {
@@ -281,13 +316,11 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-void HostWarning(const char* message)
-{
+void HostWarning(const char* message) {
     fprintf(stderr, message);
     abort();
 }
 
-const char* HostGetCommonAppData(const char* pathSuffix)
-{
+const char* HostGetCommonAppData(const char* pathSuffix) {
     return "C:\\tmp\\tmp.dat";
 }

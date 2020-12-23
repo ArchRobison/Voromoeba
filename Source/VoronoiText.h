@@ -1,15 +1,15 @@
-/* Copyright 2011-2020 Arch D. Robison 
+/* Copyright 2011-2020 Arch D. Robison
 
-   Licensed under the Apache License, Version 2.0 (the "License"); 
-   you may not use this file except in compliance with the License. 
-   You may obtain a copy of the License at 
-   
-       http://www.apache.org/licenses/LICENSE-2.0 
-       
-   Unless required by applicable law or agreed to in writing, software 
-   distributed under the License is distributed on an "AS IS" BASIS, 
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-   See the License for the specific language governing permissions and 
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
    limitations under the License.
  */
 
@@ -20,9 +20,9 @@
 #include "Utility.h"
 #include <cstdint>
 
-//! A set of points representing Voronoi diagram for a character
-//!
-//! Has no constructors since it is initialized by memset.
+ //! A set of points representing Voronoi diagram for a character
+ //!
+ //! Has no constructors since it is initialized by memset.
 class VoronoiChar {
 public:
     // A beetle for a character.
@@ -33,30 +33,30 @@ public:
         uint16_t isWhite:1;
     };
     // These dimensions include a 1 pixel border.
-    static const int width=37;
-    static const int height=51;
+    static constexpr int width=37;
+    static constexpr int height=51;
     // Number of beetles in the character
-    size_t size() const {return mySize;}
+    size_t size() const { return mySize; }
     // Maximum number of beetles
-    static const size_t maxSize = 25;
-    const charBeetle& operator[]( size_t k ) const {
-        Assert( k<size() );
+    static constexpr size_t maxSize = 25;
+    const charBeetle& operator[](size_t k) const {
+        Assert(k<size());
         return myArray[k];
     }
-    void push_back( int x, int y, bool isWhite ) {
-        Assert( char(x)==x );
-        Assert( char(y)==y );
-        Assert( mySize<maxSize );
+    void push_back(int x, int y, bool isWhite) {
+        Assert(char(x)==x);
+        Assert(char(y)==y);
+        Assert(mySize<maxSize);
         charBeetle& b = myArray[mySize++];
         b.x = x;
         b.y = y;
         b.isWhite = isWhite;
     }
     typedef const charBeetle* const_iterator;
-    const_iterator begin() const {return myArray;}
-    const_iterator end() const {return myArray+mySize;}
-    void adjustBaseline( int delta ) {
-        for( int k=0; k<mySize; ++k ) 
+    const_iterator begin() const { return myArray; }
+    const_iterator end() const { return myArray+mySize; }
+    void adjustBaseline(int delta) {
+        for (int k=0; k<mySize; ++k)
             myArray[k].y += delta;
     }
 private:
@@ -64,21 +64,20 @@ private:
     char mySize;
 };
 
-class VoronoiFont final: BuiltFromResourcePixMap {
+class VoronoiFont final : BuiltFromResourcePixMap {
 public:
-    VoronoiFont( const char* resourceName ) : 
-        BuiltFromResourcePixMap(resourceName)
-    {
+    VoronoiFont(const char* resourceName) :
+        BuiltFromResourcePixMap(resourceName) {
     }
-    const VoronoiChar& operator[]( int c ) const {
-        Assert( 0<=c && c<128 );
+    const VoronoiChar& operator[](int c) const {
+        Assert(0<=c && c<128);
         return myCharSet[c];
     }
 private:
-    static bool isRed( NimblePixel p ) {
+    static bool isRed(NimblePixel p) {
         return (p&0xFF0000)>=0xC00000 && (p&0xFF00)<=0x4000 && (p&0xFF) <= 0x40;
     }
-    static bool isBlue( NimblePixel p ) {
+    static bool isBlue(NimblePixel p) {
         return (p&0xFF)>=0xC0 && (p&0xFF0000)<=0x400000 && (p&0xFF00) <= 0x4000;
     }
     // Uses green as a proxy for brightness, since red and blue serve other purposes.
@@ -87,13 +86,13 @@ private:
         int average;
     public:
         brightness() : sum(0), average(0) {}
-        void operator+=( NimblePixel p ) {
+        void operator+=(NimblePixel p) {
             sum += p & 0xFF00;
             average += 0x8000;
         }
-        bool isBright() const {return sum>=average;}
+        bool isBright() const { return sum>=average; }
     };
-    void buildFrom( const NimblePixMap& map ) final;
+    void buildFrom(const NimblePixMap& map) final;
     VoronoiChar myCharSet[128];
 };
 
@@ -164,11 +163,11 @@ private:
 
 class VoronoiCounter {
 public:
-    void initialize( NimblePixMap& window, int width, int height, int initialValue, int upperLimit, int extra, NimbleColor c0, NimbleColor c1 );
-    Ant* copyToAnts( NimblePixMap& window, CompoundRegion region, Ant* a, int x, int y );
-    int operator+=( int addend );
-    int value() const {return myValue;}
-    int upperLimit() const {return myUpperLimit;}
+    void initialize(NimblePixMap& window, int width, int height, int initialValue, int upperLimit, int extra, NimbleColor c0, NimbleColor c1);
+    Ant* copyToAnts(NimblePixMap& window, CompoundRegion region, Ant* a, int x, int y);
+    int operator+=(int addend);
+    int value() const { return myValue; }
+    int upperLimit() const { return myUpperLimit; }
 private:
     BugArray<Bug> myBug;
     int myValue;
@@ -186,36 +185,36 @@ class VoronoiMeter {
     short myHeight;             //!< Height in pixels
     bool myTextIsOutOfDate;
 public:
-    VoronoiMeter( int nDigit );
+    VoronoiMeter(int nDigit);
 
-    void initialize( NimblePixMap& window );
+    void initialize(NimblePixMap& window);
 
     //! Height in pixels
-    int height() const {return myHeight;}
+    int height() const { return myHeight; }
     //! Width in pixels
-    int width() const {return myWidth;}
+    int width() const { return myWidth; }
 
-    void drawOn( NimblePixMap& window, int x, int y );
+    void drawOn(NimblePixMap& window, int x, int y);
 
-    int score() const {return myScore;}
-    void addScore( int addend ) {
+    int score() const { return myScore; }
+    void addScore(int addend) {
         myScore = myScore+addend;
         myTextIsOutOfDate = true;
     }
-    void multiplyScore( float frac ) {
+    void multiplyScore(float frac) {
         myTextIsOutOfDate = true;
         myScore = myScore*frac;
     }
 
-    int lifeCount() const {return myLives.value();}
+    int lifeCount() const { return myLives.value(); }
 
-    void addLife( int delta ) {
+    void addLife(int delta) {
         myLives += delta;
     }
 
-    int missileCount() const {return myMissiles.value();}
+    int missileCount() const { return myMissiles.value(); }
 
-    void addMissile( int delta ) {
+    void addMissile(int delta) {
         myMissiles += delta;
     }
 
@@ -224,4 +223,4 @@ public:
     }
 };
 
-void InitializeVoronoiText( const NimblePixMap& window );
+void InitializeVoronoiText(const NimblePixMap& window);

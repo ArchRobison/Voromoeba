@@ -77,13 +77,13 @@ static void OpenOrCloseBridgeIfReady(size_t k) {
             if (BridgeSet[k].isClosed())
                 if (predatorFrac<=predatorFracNextLevelOpen) {
                     BridgeSet[k].setOpeningVelocity(1.0f);
-                    PlaySoundRelativeToSelf(SOUND_OPEN_GATE, BridgeSet[k].center());
+                    PlaySoundRelativeToSelf(SoundKind::openGate, BridgeSet[k].center());
                 }
         } else {
             if (BridgeSet[k].isWideOpen()) {
                 if (predatorFrac<=predatorFracNextLevelClose) {
                     BridgeSet[k].setOpeningVelocity(-1.0f);
-                    PlaySoundRelativeToSelf(SOUND_CLOSE_GATE, BridgeSet[k].center());
+                    PlaySoundRelativeToSelf(SoundKind::closeGate, BridgeSet[k].center());
                 }
             }
         }
@@ -414,16 +414,16 @@ static bool TallyBump(Beetle& selfOrMissile, const Beetle& other) {
             switch (other.kind) {
                 case BeetleKind::predator: {
                     // Destroyed a predator with a missile
-                    PlaySoundRelativeToSelf(SOUND_DESTROY_PREDATOR, other.pos);
+                    PlaySoundRelativeToSelf(SoundKind::destroyPredator, other.pos);
                     Missiles::tallyHit(selfOrMissile);
                     return true;
                 }
                 case BeetleKind::orange:
-                    PlaySoundRelativeToSelf(SOUND_DESTROY_ORANGE, other.pos);
+                    PlaySoundRelativeToSelf(SoundKind::destroyOrange, other.pos);
                     return true;
 
                 case BeetleKind::sweetie:
-                    PlaySoundRelativeToSelf(SOUND_DESTROY_SWEETIE, other.pos);
+                    PlaySoundRelativeToSelf(SoundKind::destroySweetie, other.pos);
                     Finale::start("Sweetie died");
                     return true;
                 default:
@@ -436,7 +436,7 @@ static bool TallyBump(Beetle& selfOrMissile, const Beetle& other) {
                     if (TheScoreMeter.reachedMaxMissiles())
                         return false;
                     // Ate some food
-                    PlaySoundRelativeToSelf(SOUND_EAT_PLANT, other.pos);
+                    PlaySoundRelativeToSelf(SoundKind::eatPlant, other.pos);
                     TheScoreMeter.addScore(POINTS_PER_FOOD);
                     AccumulatedFood+=1;
                     if (AccumulatedFood>=FOOD_PER_MISSILE) {
@@ -445,17 +445,17 @@ static bool TallyBump(Beetle& selfOrMissile, const Beetle& other) {
                     }
                     return true;
                 case BeetleKind::orange:
-                    PlaySoundRelativeToSelf(SOUND_EAT_ORANGE, other.pos);
+                    PlaySoundRelativeToSelf(SoundKind::eatOrange, other.pos);
                     TheScoreMeter.addLife(1);
                     return true;
                 case BeetleKind::predator:
                     if (Finale::isRunning()) {
                         // Game is over, so just destroy predator.
-                        PlaySoundRelativeToSelf(SOUND_DESTROY_PREDATOR, other.pos);
+                        PlaySoundRelativeToSelf(SoundKind::destroyPredator, other.pos);
                     } else {
                         // Predator bumped me!
                         Self.startTipsey();
-                        PlaySoundRelativeToSelf(SOUND_SUFFERED_HIT, other.pos);
+                        PlaySoundRelativeToSelf(SoundKind::sufferHit, other.pos);
                         // Pay 10% tax for being bumped
                         TheScoreMeter.multiplyScore(.90f);
                         // Predator dies and I lose a life.
@@ -469,7 +469,7 @@ static bool TallyBump(Beetle& selfOrMissile, const Beetle& other) {
                     return true;
                 case BeetleKind::sweetie:
                     if (!Finale::isRunning()) {
-                        PlaySound(SOUND_SMOOCH);
+                        PlaySound(SoundKind::smooch);
                         TheScoreMeter.addScore(POINTS_PER_KISS);
                         Finale::start("Smooch!");
                         PondSet[NumPond-1].melt();

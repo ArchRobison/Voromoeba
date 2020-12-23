@@ -13,7 +13,6 @@
    limitations under the License.
  */
 
-#pragma once
 #ifndef Beetle_H
 #define Beetle_H
 
