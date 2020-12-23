@@ -53,7 +53,8 @@ void Pond::initialize(NimblePixMap& window, size_t n, PondOptionSet pondOptions,
     myPondOptions = pondOptions;
 
     if (hasWhirlpool()) {
-        myWhirlSpeed = rand()>=RAND_MAX/2 ? 1 : -1;
+        // Whirl direction is random
+        myWhirlSpeed = RandomUInt(2) ? 1 : -1;
     } else {
         myWhirlSpeed = 0;
     }
@@ -87,7 +88,7 @@ void Pond::initialize(NimblePixMap& window, size_t n, PondOptionSet pondOptions,
     // FIXME - really just need to permute positions
     for (size_t i=size(); --i>0; ) {
         // Choose a beetle in the range [0..i)
-        size_t j = rand() % i;
+        auto j = RandomUInt(i);
         std::swap((*this)[i], (*this)[j]);
     }
     size_t sweetieEnd = 0;
@@ -167,7 +168,7 @@ void Pond::initialize(NimblePixMap& window, size_t n, PondOptionSet pondOptions,
                 // Find water to swap it with
                 size_t j;
                 do {
-                    j = rand() % (size()-n_close) + n_close;
+                    j = RandomUInt(size()-n_close) + n_close;
                 } while ((*this)[j].kind!=BeetleKind::water);
                 Beetle& c = (*this)[j];
                 std::swap(b.pos, c.pos);

@@ -56,7 +56,7 @@ Neighbor* Neighborhood::trim(Neighbor* e) {
 void Neighborhood::merge() {
     std::sort(mySortedBegin, myExtraEnd);
     Neighbor* e = trim(myExtraEnd);
-    Neighbor* s = mySortedBegin+1;
+    const Neighbor* s = mySortedBegin+1;
     Neighbor* d = mySortedBegin+1;
     while (s<e) {
         *d++ = *s++;

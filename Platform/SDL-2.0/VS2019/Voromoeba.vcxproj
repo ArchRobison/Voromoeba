@@ -376,6 +376,7 @@
     <ClCompile Include="..\..\..\Source\Splash.cpp" />
     <ClCompile Include="..\..\..\Source\Synthesizer.cpp" />
     <ClCompile Include="..\..\..\Source\TraceLib.cpp" />
+    <ClCompile Include="..\..\..\Source\Utility.cpp" />
     <ClCompile Include="..\..\..\Source\Vanity.cpp" />
     <ClCompile Include="..\..\..\Source\Voronoi.cpp" />
     <ClCompile Include="..\..\..\Source\VoronoiText.cpp" />

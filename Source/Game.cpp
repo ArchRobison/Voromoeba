@@ -299,7 +299,7 @@ void GameKeyDown(int key) {
             // For testing end of game
             if (IsWizard) {
                 DoShowVanity();
-                TheVanityBoard.newScore(rand()%100);
+                TheVanityBoard.newScore(RandomUInt(100));
             }
             break;
         }

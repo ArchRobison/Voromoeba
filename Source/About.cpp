@@ -116,8 +116,8 @@ void About::initialize(NimblePixMap& window) {
 
     AboutBackground.initialize(window, 1024, [&](Point& pos)->bool {
         NimblePoint p;
-        p.x = rand() % window.width();
-        p.y = rand() % window.height();
+        p.x = RandomUInt(window.width());
+        p.y = RandomUInt(window.height());
         for (const auto& r : Rect)
             if (r.contains(p))
                 return false;

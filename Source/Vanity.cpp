@@ -98,7 +98,7 @@ void VanityBoardData::writeToFile() {
     if( const char* path = getVanityBoardPath() ) {
         if( FILE* f = fopen(path,"wb") ) {
             version = CurrentVersion;
-            salt = std::rand() ^ std::rand()<<11 ^ std::rand()<<22;
+            salt = RandomUInt(std::numeric_limits<uint32_t>::max());
             checkSum.generateFrom(*this);
             // Write the signed copy
             size_t n = fwrite(this,sizeof(VanityBoard),1,f);

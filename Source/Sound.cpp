@@ -318,7 +318,7 @@ void PlaySound(SoundKind k, Point p) {
         case SoundKind::destroyOrange:
             break;
         default:
-            relativePitch = pow(1.059463f, (rand()>>8)%13);
+            relativePitch = pow(1.059463f, RandomUInt(13));
     }
     Synthesizer::Waveform* w;
     switch (k) {

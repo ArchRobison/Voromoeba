@@ -187,7 +187,7 @@ void World::initialize(NimblePixMap& window) {
     int8_t numOrange[N_POND_MAX] = {};
     constexpr uint32_t totalNumOrange = 5;
     for (size_t i=0; i<totalNumOrange; ++i)
-        numOrange[rand()%7u]++;
+        numOrange[RandomUInt(7)]++;
 
     // Allocate and initialize ponds
     ResetSlush();

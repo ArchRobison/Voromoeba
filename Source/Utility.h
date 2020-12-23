@@ -73,14 +73,15 @@ inline bool IsInfinity(float z) {
     return z==std::numeric_limits<float>::infinity();
 }
 
-//! Return random real in [0,a]
-inline float RandomFloat(float a) {
-    return rand()*(a*(1.0f/RAND_MAX));
-}
+//! Return random integer in [0,a)
+uint32_t RandomUInt(uint32_t a);
+
+//! Return random real in [0,a)
+float RandomFloat(float a);
 
 //! Return random angle
-inline float RandomAngle() {
-    return rand()*(2*3.1415926535f/(RAND_MAX+1.f));
+inline float RandomAngle() { 
+    return RandomFloat(2*3.1415926535f); 
 }
 
 //! Base class for non-copiable non-assignable classes
