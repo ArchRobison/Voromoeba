@@ -75,3 +75,5 @@ const char* HostGetCommonAppData(const char* pathSuffix);
 //!
 //! Intended for warning during startup.
 void HostWarning(const char* message);
+
+void HostShowCursor(bool show);

@@ -366,6 +366,10 @@ void HostWarning(const char* message) {
     fflush(LogFile);
 }
 
+void HostShowCursor(bool show) {
+    SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
+}
+
 const char* HostGetCommonAppData(const char* pathSuffix) {
     return "C:\\tmp\\tmp.dat";
 }

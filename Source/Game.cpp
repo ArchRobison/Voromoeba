@@ -383,6 +383,7 @@ void GameResizeOrMove(NimblePixMap& window) {
     About::initialize(window);
     Help::initialize(window);
     Finale::initialize(window);
+    HostShowCursor(false);
 }
 
 const char* GameTitle() {
