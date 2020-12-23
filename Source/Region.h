@@ -18,20 +18,22 @@
 
 #include "Geometry.h"
 #include "Outline.h" 
+#include <cstdint>
 
  // FIXME - add striping so we can shrink this value
-static const int MAX_STRIPE_HEIGHT = 2048;
-static const int MAX_CONVEX_REGION = 40;
+constexpr int32_t MAX_STRIPE_HEIGHT = 2048;
+constexpr int32_t MAX_CONVEX_REGION = 40;
 
 //! Left and right bounds of a line segment contained inside a region.
 class RegionSegment {
 public:
-    typedef short value_type;
-    static const short value_type_max = SHRT_MAX;
-    value_type left, right;
+    //! Type of left and right.
+    using valueType = int16_t;
+    static constexpr int16_t valueTypeMax = std::numeric_limits<int16_t>::max();
+    valueType left, right;
     bool empty() const { return right<=left; }
 private:
-    void assign(value_type l, value_type r) {
+    void assign(valueType l, valueType r) {
         left=l;
         right=r;
     }
@@ -92,7 +94,7 @@ class ConvexRegion {
     RowVector<RegionSegment, false> myVec;
     bool myIsPositive;
 public:
-    typedef RegionSegment::value_type value_type;
+    typedef RegionSegment::valueType value_type;
     bool empty() const { return myVec.empty(); }
     value_type top() const { return myVec.top(); }
     value_type bottom() const { return myVec.bottom(); }

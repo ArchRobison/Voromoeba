@@ -16,9 +16,7 @@
 #ifndef Finale_H
 #define Finale_H
 
-class NimblePixMap;
-class Point;
-class Ant;
+#include "Forward.h"
 
 class Finale {
 public:

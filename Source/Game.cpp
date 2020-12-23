@@ -13,38 +13,39 @@
    limitations under the License.
  */
 
-#include "Config.h"
-#include "Game.h"
-#include "Pond.h"
-#include "Splash.h"
-#include "Missile.h"
-#include "World.h"
-#include "Host.h"
-#include "NimbleDraw.h"
 #include "About.h"
 #include "BuiltFromResource.h"
+#include "Config.h"
 #include "Finale.h"
+#include "Game.h"
 #include "Help.h"
+#include "Host.h"
+#include "Missile.h"
+#include "NimbleDraw.h"
+#include "Pond.h"
 #include "Self.h"
 #include "Sound.h"
+#include "Splash.h"
 #include "Synthesizer.h"
 #include "Utility.h"
 #include "Vanity.h"
 #include "VoronoiText.h"
 #include "Widget.h"
+#include "World.h"
+
 #include <cstdlib>
 #include <cmath>
 #include <algorithm>
 
-enum ShowKind {
-    ShowSplash,
-    ShowPonds,
-    ShowVanity,
-    ShowAbout,
-    ShowHelp
+enum class ShowKind : int8_t {
+    splash, // Splash screen
+    ponds,  // Ponds, i.e. main game play
+    vanity, // Vanity board
+    about,  // About the author
+    help    // Help
 };
 
-static ShowKind ShowWhat = ShowSplash;
+static ShowKind ShowWhat = ShowKind::splash;
 
 #if WIZARD_ALLOWED
 static constexpr bool IsWizard = true;
@@ -52,22 +53,22 @@ static constexpr bool IsWizard = true;
 
 void DoShowAbout() {
     Ant::switchBuffer();
-    ShowWhat = ShowAbout;
+    ShowWhat = ShowKind::about;
 }
 
 void DoShowVanity() {
     Ant::switchBuffer();
-    ShowWhat = ShowVanity;
+    ShowWhat = ShowKind::vanity;
 }
 
 void DoShowSplash() {
     Ant::switchBuffer();
-    ShowWhat = ShowSplash;
+    ShowWhat = ShowKind::splash;
 }
 
 void DoShowHelp() {
     Ant::switchBuffer();
-    ShowWhat = ShowHelp;
+    ShowWhat = ShowKind::help;
 }
 
 void EndPlay() {
@@ -75,11 +76,11 @@ void EndPlay() {
     if (int score = TheScoreMeter.score()) {
         TheVanityBoard.newScore(TheScoreMeter.score());
         if (TheVanityBoard.isEnteringName()) {
-            ShowWhat = ShowVanity;
+            ShowWhat = ShowKind::vanity;
             return;
         }
     }
-    ShowWhat = ShowSplash;
+    ShowWhat = ShowKind::splash;
 }
 
 inline bool IsKeyDown(int key0, int key1) {
@@ -103,13 +104,13 @@ static void UpdateView(NimblePixMap& screen, float dt) {
         forward-=1.0f;
     }
     switch (ShowWhat) {
-        case ShowPonds:
+        case ShowKind::ponds:
             World::update(screen, dt, forward, torque);
             break;
-        case ShowHelp:
+        case ShowKind::help:
             Help::update(dt, torque*dt);
             break;
-        case ShowSplash:
+        case ShowKind::splash:
             Splash::update(dt, torque*dt);
             break;
     }
@@ -122,19 +123,19 @@ static void Update(NimblePixMap& screen) {
     T0 = t1;
     if (dt==t1)
         return;
-    if (ShowWhat==ShowPonds) {
+    if (ShowWhat==ShowKind::ponds) {
     } else {
         // Update slush sounds, otherwise they can be stuck on until the ponds view is shown again.
         UpdateSlush(dt);
     }
     switch (ShowWhat) {
-        case ShowPonds:
-        case ShowSplash:
-        case ShowHelp:
+        case ShowKind::ponds:
+        case ShowKind::splash:
+        case ShowKind::help:
             // These are all views that involve motion control.
             UpdateView(screen, dt);
             break;
-        case ShowAbout:
+        case ShowKind::about:
             About::update(dt);
             break;
     }
@@ -162,7 +163,7 @@ static float EstimateFrameRate() {
 static void Draw(NimblePixMap& screen) {
     Ant::clearBuffer();
     switch (ShowWhat) {
-        case ShowPonds: {
+        case ShowKind::ponds: {
             extern VoronoiMeter TheScoreMeter;
 #if !WIZARD_ALLOWED
             ShowAnts &= TheScoreMeter.score()<20;
@@ -171,19 +172,19 @@ static void Draw(NimblePixMap& screen) {
             TheScoreMeter.drawOn(screen, 0, screen.height()-TheScoreMeter.height());
             break;
         }
-        case ShowVanity: {
+        case ShowKind::vanity: {
             TheVanityBoard.draw(screen);
             break;
         }
-        case ShowSplash: {
+        case ShowKind::splash: {
             Splash::draw(screen);
             break;
         }
-        case ShowAbout: {
+        case ShowKind::about: {
             About::draw(screen);
             break;
         }
-        case ShowHelp: {
+        case ShowKind::help: {
             Help::draw(screen);
             break;
         }
@@ -220,7 +221,7 @@ void GameKeyDown(int key) {
         return;
     }
     if (TheVanityBoard.isEnteringName()) {
-        Assert(ShowWhat==ShowVanity);
+        Assert(ShowWhat==ShowKind::vanity);
         TheVanityBoard.enterNextCharacterOfName(key);
         return;
     }
@@ -265,7 +266,7 @@ void GameKeyDown(int key) {
 #if 0
         case 'i':           // Need different letter
             if (IsWizard) {
-                ShowWhat = ShowVanity;
+                ShowWhat = ShowKind::vanity;
                 TheVanityBoard.showTestImage(true);
             }
             break;
@@ -306,7 +307,7 @@ void GameKeyDown(int key) {
     }
     // Keys whose meaning depends on what is being shown
     switch (ShowWhat) {
-        case ShowSplash:
+        case ShowKind::splash:
             switch (key) {
                 case HOST_KEY_RETURN:
                 case ' ':
@@ -323,7 +324,7 @@ void GameKeyDown(int key) {
                     break;
             }
             break;
-        case ShowPonds:
+        case ShowKind::ponds:
             switch (key) {
 #if WIZARD_ALLOWED
                 case 'j':
@@ -355,9 +356,9 @@ void GameKeyDown(int key) {
                 }
             }
             break;
-        case ShowAbout:
-        case ShowVanity:
-        case ShowHelp: {
+        case ShowKind::about:
+        case ShowKind::vanity:
+        case ShowKind::help: {
             switch (key) {
                 case ' ':
                 case 't':
@@ -370,7 +371,7 @@ void GameKeyDown(int key) {
 }
 
 void DoStartPlaying() {
-    ShowWhat = ShowPonds;
+    ShowWhat = ShowKind::ponds;
     InitWorldFlag = true;
     Ant::switchBuffer();
 }

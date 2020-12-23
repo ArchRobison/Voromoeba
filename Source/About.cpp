@@ -13,13 +13,14 @@
    limitations under the License.
  */
 
-#include "NimbleDraw.h"
 #include "About.h"
 #include "Background.h"
-#include "Widget.h"
 #include "Bug.h"
+#include "Enum.h"
+#include "NimbleDraw.h"
 #include "Region.h"
 #include "VoronoiText.h"
+#include "Widget.h"
 #include <cmath>
 
 namespace {
@@ -69,9 +70,15 @@ Photo TheAuthor("Author");
 VoronoiText TheTitle;
 VoronoiText TheInfo;
 enum class RectIndex : int8_t { author, title, info };
-constexpr size_t N_RectIndex = size_t(RectIndex::info) + 1;
 
-EnumMap<RectIndex, N_RectIndex, NimbleRect> Rect;
+} // (anonymous)
+
+template<>
+constexpr RectIndex EnumMax<RectIndex> = RectIndex::info; 
+
+namespace {
+
+EnumMap<RectIndex, NimbleRect> Rect;
 
 void ShrinkWrapTextRect(NimbleRect& rect, const VoronoiText& text) {
     float sx = float(rect.width())/text.width();
@@ -111,8 +118,8 @@ void About::initialize(NimblePixMap& window) {
         NimblePoint p;
         p.x = rand() % window.width();
         p.y = rand() % window.height();
-        for (size_t j=0; j<N_RectIndex; ++j)
-            if (Rect[RectIndex(j)].contains(p))
+        for (const auto& r : Rect)
+            if (r.contains(p))
                 return false;
         pos.x = p.x;
         pos.y = p.y;

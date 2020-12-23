@@ -362,8 +362,8 @@ int main(int argc, char* argv[]) {
 }
 
 void HostWarning(const char* message) {
-    fprintf(stderr, message);
-    abort();
+    fprintf(LogFile, message);
+    fflush(LogFile);
 }
 
 const char* HostGetCommonAppData(const char* pathSuffix) {

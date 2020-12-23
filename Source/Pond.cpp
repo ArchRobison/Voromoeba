@@ -49,7 +49,7 @@ void Pond::initializeColorAndSound(NimblePixMap& window, size_t first, size_t la
     }
 }
 
-void Pond::initialize(NimblePixMap& window, size_t n, PondOptions pondOptions, size_t numOrange) {
+void Pond::initialize(NimblePixMap& window, size_t n, PondOptionSet pondOptions, uint32_t numOrange) {
     myPondOptions = pondOptions;
 
     if (hasWhirlpool()) {
@@ -71,7 +71,7 @@ void Pond::initialize(NimblePixMap& window, size_t n, PondOptions pondOptions, s
     for (int i=-m; i<m; ++i) {
         for (int j=-m; j<m; ++j) {
             Point p((i&1) ? j*base : (j+0.5f)*base, i*alt);
-            if (!(myPondOptions&PO_Crystalline))
+            if (!myPondOptions[PondOption::crystalline])
                 p += Polar(base/4.f, RandomAngle());
             if (Dist2(p)>=radiusSquared())
                 continue;
@@ -88,18 +88,18 @@ void Pond::initialize(NimblePixMap& window, size_t n, PondOptions pondOptions, s
     for (size_t i=size(); --i>0; ) {
         // Choose a beetle in the range [0..i)
         size_t j = rand() % i;
-        Swap((*this)[i], (*this)[j]);
+        std::swap((*this)[i], (*this)[j]);
     }
     size_t sweetieEnd = 0;
     float predatorFrac=0, foodFrac=0;
-    if (myPondOptions&PO_Zinger) {
+    if (myPondOptions[PondOption::zinger]) {
         // Reserve cell for "sweetie" that is at least a pond's radius away from the pond's entrance.
         Point entrance = World::getEntrance(*this)->center();
         size_t i=size();
         while (--i>0)
             if (Dist2((*this)[i].pos, entrance)>=radiusSquared())
                 break;
-        Swap((*this)[0], (*this)[i]);
+        std::swap((*this)[0], (*this)[i]);
         sweetieEnd = 1;
         // Inject "zingers" as extra Beetles in addition to the crystalline water.
         const size_t numZinger = 3;
@@ -109,7 +109,7 @@ void Pond::initialize(NimblePixMap& window, size_t n, PondOptions pondOptions, s
         for (size_t j=0; j<numZinger; ++j) {
             Beetle& b = (*this)[k+j];
             b.pos = center()+Polar(0.25f*radius(), RandomAngle());
-            Swap((*this)[sweetieEnd+j], (*this)[k+j]);
+            std::swap((*this)[sweetieEnd+j], (*this)[k+j]);
         }
         myPredatorCount = numZinger;
     } else {
@@ -159,7 +159,7 @@ void Pond::initialize(NimblePixMap& window, size_t n, PondOptions pondOptions, s
         // This is the initial pond where "self" will be placed at (0,0). 
         // Move any close food, oranges, or predators away from (0,0), so that points will not 
         // be immediately gained or lost when the game starts.
-        std::sort(begin(), end(), [](Beetle& b, Beetle& c) {return Dist2(b.pos)<Dist2(c.pos); });
+        std::sort(begin(), end(), [](const Beetle& b, const Beetle& c) {return Dist2(b.pos)<Dist2(c.pos); });
         const size_t n_close = 12;
         for (size_t k=0; k<n_close; ++k) {
             Beetle& b = (*this)[k];
@@ -170,8 +170,7 @@ void Pond::initialize(NimblePixMap& window, size_t n, PondOptions pondOptions, s
                     j = rand() % (size()-n_close) + n_close;
                 } while ((*this)[j].kind!=BeetleKind::water);
                 Beetle& c = (*this)[j];
-                // Swap( b, c );
-                Swap(b.pos, c.pos);
+                std::swap(b.pos, c.pos);
                 ++j;
             }
         }
@@ -180,18 +179,18 @@ void Pond::initialize(NimblePixMap& window, size_t n, PondOptions pondOptions, s
     // Initialize velocities
     for (size_t k=0; k<size(); ++k) {
         Beetle& b = (*this)[k];
-        PondOptions isMoving = PondOptions(0);
+        PondOption isMoving = PondOption();
         switch (b.kind) {
-            case BeetleKind::predator: isMoving = PO_PredatorMoves; break;
-            case BeetleKind::plant:    isMoving = PO_FoodMoves; break;
-            case BeetleKind::water:    isMoving = PO_WaterMoves; break;
+            case BeetleKind::predator: isMoving = PondOption::predatorMoves; break;
+            case BeetleKind::plant:    isMoving = PondOption::foodMoves; break;
+            case BeetleKind::water:    isMoving = PondOption::waterMoves; break;
         }
-        if (myPondOptions & isMoving) {
+        if (myPondOptions[isMoving]) {
             float theta = RandomAngle();
             float speed;
-            if ((myPondOptions & PO_Zinger) && b.kind==BeetleKind::predator)
+            if (myPondOptions[PondOption::zinger] && b.kind==BeetleKind::predator)
                 speed = 0.15f*radius()*(RandomFloat(3)+1);
-            else if ((myPondOptions & PO_Crystalline) && b.kind==BeetleKind::water)
+            else if (myPondOptions[PondOption::crystalline] && b.kind==BeetleKind::water)
                 speed = 0.01f*radius()*(RandomFloat(2)+1);
             else
                 speed = 0.03f*radius()*(RandomFloat(2)+1);
@@ -257,7 +256,7 @@ void Pond::update(float dt) {
             b.color.setInterior(SelfType::colorWobble(b.orbit));
             Assert(b.color.hasExterior());
         } else if (b.kind==BeetleKind::water) {
-            if (myPondOptions & PO_Crystalline)
+            if (myPondOptions[PondOption::crystalline])
                 continue;
         }
         float s = dt;
@@ -285,7 +284,7 @@ void Pond::update(float dt) {
                 // Advance to boundary
                 b.pos += deltaS*b.vel;
                 s -= deltaS;
-                if ((b.kind==BeetleKind::predator) && (myPondOptions & PO_Zinger) && Dist2(Self.pos, center())<radiusSquared()) {
+                if (b.kind==BeetleKind::predator && myPondOptions[PondOption::zinger] && Dist2(Self.pos, center())<radiusSquared()) {
                     Point v = InterceptVec(Self.pos, Self.vel, b.pos, Distance(b.vel));
                     if (Dot(v, b.pos-center())<0) {
                         b.vel = v;

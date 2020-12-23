@@ -20,14 +20,6 @@
 #ifndef Config_H
 #define Config_H
 
-//! Maximum supported display width
-/** Must be multiple of 4.  
-    Seem to get slightly better performance if it is not a multiple of 16 */
-const int DISPLAY_WIDTH_MAX = 2560;
-
-//! Maximum supported display height.
-const int DISPLAY_HEIGHT_MAX = 2048;
-
 //! Minimum display width
 const int DISPLAY_WIDTH_MIN = 1024;
 

@@ -17,7 +17,7 @@
 #define Background_H
 
 #include "Bug.h"
-class NimblePixMap;
+#include "Forward.h"
 
 //! An array of Bug objects used for generating Voronoi backgrounds.
 class Background : public BugArray<Bug> {

@@ -22,18 +22,21 @@
 
 #include <cstdlib>
 #include <cstdint>
+#include <initializer_list>
 #include <limits>
 #include "AssertLib.h"
 
-typedef unsigned char byte;
+typedef uint8_t byte;
 
+//! Return minimum of two values. 
 template<typename T>
-inline T Min(T a, T b) {
+inline T Min(const T& a, const T& b) {
     return a<b ? a : b;
 }
 
+//! Return maximum of two values.
 template<typename T>
-inline T Max(T a, T b) {
+inline T Max(const T& a, const T& b) {
     return a<b ? b : a;
 }
 
@@ -42,13 +45,6 @@ template<typename T>
 inline T Clip(T a, T b, T x) {
     Assert(!(b<a));
     return x<a ? a : b<x ? b : x;
-}
-
-template<typename T>
-inline void Swap(T& x, T& y) {
-    T tmp(x);
-    x = y;
-    y = tmp;
 }
 
 inline int Round(float x) {   // FIXME - add SSE version
@@ -98,8 +94,9 @@ public:
 //! No-frills array class
 //!
 //! Extra is number of additional elements to add beyond reported size.
-//! These additional elements may be accessed via operator[].
-//! E.g., AdditiveSynthesizer uses Extra=1 to simplify logic. */
+//! These additional elements may be accessed via operator[], 
+//! even though they are beyond the reported size.
+//! E.g., AdditiveSynthesizer uses Extra=1 to simplify logic. 
 template<typename T, size_t Extra=0>
 class SimpleArray : NoCopy {
     T* myStart;
@@ -194,23 +191,6 @@ public:
     void erase(iterator i) {
         Assert(myBegin<=i && i<myEnd);
         pop(*i);
-    }
-};
-
-//! Array-like object that is subscripted by an Enum
-//!
-//! \tparam Key enum type used for subscripting. Should be dense 0-origin enum.
-//! \tparam KeyCount Number of key values.
-//! \tparam T typed mapped to
-template<typename Key, size_t KeyCount, typename T>
-class EnumMap {
-    T array[KeyCount];
-public:
-    T& operator[](Key k) {
-        return array[size_t(k)];
-    }
-    const T& operator[](Key k) const {
-        return array[size_t(k)];
     }
 };
 

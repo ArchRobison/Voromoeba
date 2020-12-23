@@ -16,14 +16,12 @@
 #ifndef Ant_H
 #define Ant_H
 
+#include "Forward.h"
 #include "Geometry.h"
-#include "NimbleDraw.h"
 #include "Outline.h"
 #include <cfloat>
 #include <cmath>
 #include <limits>
-
-class CompoundRegion;
 
 constexpr float AntInfinity = std::numeric_limits<float>::max();
 

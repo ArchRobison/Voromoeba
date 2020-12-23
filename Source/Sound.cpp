@@ -15,6 +15,7 @@
 
 #include "AssertLib.h"
 #include "BuiltFromResource.h"
+#include "Enum.h"
 #include "Synthesizer.h"
 #include "Sound.h"
 #include "Utility.h"
@@ -31,7 +32,7 @@ struct SoundWaveform {
     float* samples;
 };
 
-static EnumMap<SoundKind, N_SoundKind, Synthesizer::Waveform> TheSounds;
+static EnumMap<SoundKind, Synthesizer::Waveform> TheSounds;
 
 static void ConstructSound(SoundKind k, size_t n) {
     TheSounds[k].resize(n);

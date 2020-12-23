@@ -159,6 +159,8 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>false</FunctionLevelLinking>
+      <AdditionalOptions>
+      </AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shell32.lib;kernel32.lib;d3d9.lib;dsound.lib;dxguid.lib;user32.lib;gdi32.lib;winmm.lib;Comdlg32.lib;gdiplus.lib;Ole32.lib;Shcore.lib;sdl2_image.lib;sdl2main.lib;sdl2.lib;</AdditionalDependencies>
@@ -185,6 +187,8 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <StringPooling>true</StringPooling>
+      <AdditionalOptions>
+      </AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shell32.lib;kernel32.lib;d3d9.lib;dsound.lib;dxguid.lib;user32.lib;gdi32.lib;winmm.lib;Comdlg32.lib;gdiplus.lib;Ole32.lib;Shcore.lib;sdl2_image.lib;sdl2main.lib;sdl2.lib;</AdditionalDependencies>
@@ -213,6 +217,8 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <StringPooling>true</StringPooling>
+      <AdditionalOptions>
+      </AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shell32.lib;kernel32.lib;d3d9.lib;dsound.lib;dxguid.lib;user32.lib;gdi32.lib;winmm.lib;Comdlg32.lib;gdiplus.lib;Ole32.lib;Shcore.lib;sdl2_image.lib;sdl2main.lib;sdl2.lib;</AdditionalDependencies>
@@ -243,6 +249,8 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <StringPooling>true</StringPooling>
+      <AdditionalOptions>
+      </AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shell32.lib;kernel32.lib;d3d9.lib;dsound.lib;dxguid.lib;user32.lib;gdi32.lib;winmm.lib;Comdlg32.lib;gdiplus.lib;Ole32.lib;Shcore.lib;sdl2_image.lib;sdl2main.lib;sdl2.lib;</AdditionalDependencies>
@@ -273,6 +281,8 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>false</FunctionLevelLinking>
+      <AdditionalOptions>
+      </AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shell32.lib;kernel32.lib;d3d9.lib;dsound.lib;dxguid.lib;user32.lib;gdi32.lib;winmm.lib;Comdlg32.lib;gdiplus.lib;Ole32.lib;Shcore.lib;sdl2_image.lib;sdl2main.lib;sdl2.lib;</AdditionalDependencies>
@@ -301,6 +311,8 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>false</FunctionLevelLinking>
+      <AdditionalOptions>
+      </AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shell32.lib;kernel32.lib;d3d9.lib;dsound.lib;dxguid.lib;user32.lib;gdi32.lib;winmm.lib;Comdlg32.lib;gdiplus.lib;Ole32.lib;Shcore.lib;sdl2_image.lib;sdl2main.lib;sdl2.lib;</AdditionalDependencies>
@@ -327,6 +339,8 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>false</FunctionLevelLinking>
+      <AdditionalOptions>
+      </AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shell32.lib;kernel32.lib;d3d9.lib;dsound.lib;dxguid.lib;user32.lib;gdi32.lib;winmm.lib;Comdlg32.lib;gdiplus.lib;Ole32.lib;Shcore.lib;sdl2_image.lib;sdl2main.lib;sdl2.lib;</AdditionalDependencies>
@@ -343,7 +357,6 @@
     <ClCompile Include="..\..\..\Source\Ant.cpp" />
     <ClCompile Include="..\..\..\Source\AssertLib.cpp" />
     <ClCompile Include="..\..\..\Source\Background.cpp" />
-    <ClCompile Include="..\..\..\Source\Beetle.cpp" />
     <ClCompile Include="..\..\..\Source\Bridge.cpp" />
     <ClCompile Include="..\..\..\Source\BuiltFromResource.cpp" />
     <ClCompile Include="..\..\..\Source\Color.cpp" />
@@ -384,7 +397,9 @@
     <ClInclude Include="..\..\..\Source\BuiltFromResource.h" />
     <ClInclude Include="..\..\..\Source\Color.h" />
     <ClInclude Include="..\..\..\Source\Config.h" />
+    <ClInclude Include="..\..\..\Source\Enum.h" />
     <ClInclude Include="..\..\..\Source\Finale.h" />
+    <ClInclude Include="..\..\..\Source\Forward.h" />
     <ClInclude Include="..\..\..\Source\Game.h" />
     <ClInclude Include="..\..\..\Source\Geometry.h" />
     <ClInclude Include="..\..\..\Source\Help.h" />
@@ -394,6 +409,7 @@
     <ClInclude Include="..\..\..\Source\NimbleDraw.h" />
     <ClInclude Include="..\..\..\Source\NonblockingQueue.h" />
     <ClInclude Include="..\..\..\Source\Outline.h" />
+    <ClInclude Include="..\..\..\Source\Pond.h" />
     <ClInclude Include="..\..\..\Source\PoolAllocator.h" />
     <ClInclude Include="..\..\..\Source\Region.h" />
     <ClInclude Include="..\..\..\Source\Self.h" />

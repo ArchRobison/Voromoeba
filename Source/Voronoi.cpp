@@ -459,8 +459,8 @@ void VoronoiRasterizer::setBoundary(const Point& l, VoronoiSegment& r) const {
         // Compute intersection with current y
         r.left = 0.5f*((l.x+r.x) + slope*(2.0f*lineY-(l.y+r.y)));
         // Check for culling errors
-        Assert(-RegionSegment::value_type_max < r.left);
-        Assert(r.left < RegionSegment::value_type_max);
+        Assert(-RegionSegment::valueTypeMax < r.left);
+        Assert(r.left < RegionSegment::valueTypeMax);
     }
 #if ASSERTIONS
     r.yWhenSlopeWasSet = lineY;
@@ -576,10 +576,10 @@ void VoronoiRasterizer::drawLive(NimblePixMap& window, const CompoundRegion& reg
     VoronoiSegment* j = leftDummy.next;
     for (;;) {
         Assert(s->left < s->right);
-        Assert(-RegionSegment::value_type_max <= j->left);
-        Assert(j->left <= RegionSegment::value_type_max);
-        RegionSegment::value_type l=j->left;
-        RegionSegment::value_type r=j->next->left;
+        Assert(-RegionSegment::valueTypeMax <= j->left);
+        Assert(j->left <= RegionSegment::valueTypeMax);
+        RegionSegment::valueType l=j->left;
+        RegionSegment::valueType r=j->next->left;
         int u = Max(s->left, l);
         auto c = j->color;
         int v = Min(s->right, r);

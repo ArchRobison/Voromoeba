@@ -20,9 +20,9 @@
  //! A neighbor of a target point, as computed by class Neighborhood.
 class Neighbor : public Point {
 public:
-    typedef unsigned indexType;
+    using indexType = uint32_t;
     indexType index;
-    static const indexType ghostIndex = -1;
+    static constexpr indexType ghostIndex = ~0u;
 private:
     float alpha;
     void assign(Point pos, float alpha_, indexType index_) {

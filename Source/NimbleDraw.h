@@ -169,19 +169,19 @@ public:
     //!
     //! In old versions of NimblePixMap, the depth was determined at run-time.
     //! In the current version, a NimblePixel is presumed to be 32 bits. 
-    int32_t lgBitPixelDepth() const {
-        Assert(sizeof(NimblePixel)==4);
+    constexpr int32_t lgBitPixelDepth() const {
+        static_assert(sizeof(NimblePixel)==4, "pixel must be 4 bytes");
         return 5;
     }
 
     // Base-2 log of bytes per pixel
-    int32_t lgBytePixelDepth() const { return lgBitPixelDepth()-3; }
+    constexpr int32_t lgBytePixelDepth() const { return lgBitPixelDepth()-3; }
 
     // Pixel depth in bits per pixel  
-    int32_t bitPixelDepth() const { return 1<<lgBitPixelDepth(); }
+    constexpr int32_t bitPixelDepth() const { return 1<<lgBitPixelDepth(); }
 
     //! Pixel depth in bytes per pixel
-    int32_t bytePixelDepth() const { return 1<<lgBytePixelDepth(); }
+    constexpr int32_t bytePixelDepth() const { return 1<<lgBytePixelDepth(); }
 
     //! Given color, convert to pixel.
     NimblePixel pixel(const NimbleColor& color) const;
@@ -250,10 +250,10 @@ private:
     friend class NimblePixMapWithOwnership;
 };
 
-inline void* NimblePixMap::at(int x, int y) const {
+inline void* NimblePixMap::at(int32_t x, int32_t y) const {
     Assert(0 <= x && x < width());
     Assert(0 <= y && y < height());
-    return (byte*)myBaseAddress + myBytesPerRow*y + (x<<lgBytePixelDepth());
+    return (uint8_t*)myBaseAddress + myBytesPerRow*y + (x<<lgBytePixelDepth());
 }
  
 inline NimbleColor::component_t NimblePixMap::alpha(NimblePixel pixel) const {

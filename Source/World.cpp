@@ -31,9 +31,10 @@
 #include "Splash.h"
 #include <climits>
 
-static float TheOriginalViewScale;
-static float ZoomFactor = 1;
-ViewTransform World::viewTransform;
+namespace {
+
+float TheOriginalViewScale;
+float ZoomFactor = 1;
 
 const size_t N_POND_MAX = 10;
 
@@ -41,6 +42,10 @@ static Pond PondSet[N_POND_MAX];
 static Point PondCenter[N_POND_MAX];
 static Bridge BridgeSet[N_POND_MAX];
 static Background PondBackground;
+
+} // (anonymous)
+
+ViewTransform World::viewTransform;
 
 Bridge* World::getEntrance(const Pond& p) {
     size_t k = &p-PondSet;
@@ -53,21 +58,23 @@ bool World::isInDarkPond(const Beetle& b) {
 }
 
 VoronoiMeter TheScoreMeter(4);
-static const int FOOD_PER_MISSILE = 8;
-static const int POINTS_PER_FOOD = 1;
-static const int POINTS_PER_KISS = 1000;
+
+namespace {
+constexpr int FOOD_PER_MISSILE = 8;
+constexpr int POINTS_PER_FOOD = 1;
+constexpr int POINTS_PER_KISS = 1000;
 static int AccumulatedFood;
 
-static size_t NumPond;
-static const float NeighborSeparation = 1.05f;
-static const float OtherSeparation = 1.5f;
+uint32_t NumPond;
+constexpr float NeighborSeparation = 1.05f;
+constexpr float OtherSeparation = 1.5f;
 
-static void PlaySoundRelativeToSelf(SoundKind k, Point other) {
+void PlaySoundRelativeToSelf(SoundKind k, Point other) {
     PlaySound(k, UnitVector(World::viewTransform.rotate(other-Self.pos)));
 }
 
 //! Open door from pond with index k to next pond if prerequisites are satisfied.
-static void OpenOrCloseBridgeIfReady(size_t k) {
+void OpenOrCloseBridgeIfReady(size_t k) {
     const float predatorFracNextLevelClose = 0.02f;
     const float predatorFracNextLevelOpen = 0.025f;
     Assert(k+1<NumPond);
@@ -91,7 +98,7 @@ static void OpenOrCloseBridgeIfReady(size_t k) {
 }
 
 //! Recursive routine that fills in PondSet[k..NumPond)
-static bool InitializeGeometry(size_t k, float meanRadius) {
+bool InitializeGeometry(size_t k, float meanRadius) {
     Assert(k<NumPond);
     for (int trial=0; trial<4; ++trial) {
         float r = meanRadius*(0.9f+RandomFloat(0.2f));
@@ -121,7 +128,7 @@ nextTrial:;
 }
 
 //! Adjust background beetles so that their Voronoi boundaries bisect the bridges
-static void AdjustBackground() {
+void AdjustBackground() {
     // Iterative numerical relaxation.
     for (int i=0; i<20; ++i) {
         Point delta[N_POND_MAX];
@@ -138,7 +145,7 @@ static void AdjustBackground() {
     }
 }
 
-static void InitializeBackground(NimblePixMap& window) {
+void InitializeBackground(NimblePixMap& window) {
     NimbleColor brown[2] ={ NimbleColor(64,32,0), NimbleColor(224,112,0) };
 
     // Initialize background
@@ -155,6 +162,8 @@ static void InitializeBackground(NimblePixMap& window) {
     // Adjustbackgound
     AdjustBackground();
 }
+
+} //(anonymous)
 
 void World::initialize(NimblePixMap& window) {
     TheOriginalViewScale = 0.8f*std::sqrt(float(window.width()*window.height()));
@@ -175,23 +184,22 @@ void World::initialize(NimblePixMap& window) {
     Missiles::initialize(window);
 
     // Choose where oranges will go (uniform distribution across first 7 ponds)
-    byte numOrange[N_POND_MAX];
-    std::memset(numOrange, 0, sizeof(numOrange));
-    const size_t totalNumOrange = 5;
+    int8_t numOrange[N_POND_MAX] = {};
+    constexpr uint32_t totalNumOrange = 5;
     for (size_t i=0; i<totalNumOrange; ++i)
         numOrange[rand()%7u]++;
 
     // Allocate and initialize ponds
     ResetSlush();
     for (size_t k=0; k<NumPond; ++k) {
-        PondOptions po = PO_None;
-        if (k>=1) po|=PO_PredatorMoves;
-        if (k>=2) po|=PO_WaterMoves;
-        if (k>=3) po|=PO_FoodMoves;
-        if (k==4) po|=PO_Whirlpool;
-        if (k==5) po|=PO_Dark;
-        if (k==6) po|=PO_ZoneOfDoom;
-        if (k==7) po|=PO_Crystalline | PO_Zinger;
+        PondOptionSet po;
+        if (k>=1) po|=PondOption::predatorMoves;
+        if (k>=2) po|=PondOption::waterMoves;
+        if (k>=3) po|=PondOption::foodMoves;
+        if (k==4) po|=PondOption::whirlpool;
+        if (k==5) po|=PondOption::dark;
+        if (k==6) po|=PondOption::zoneOfDoom;
+        if (k==7) { po|=PondOption::crystalline; po|=PondOption::zinger; }
         PondSet[k].initialize(window, 600, po, numOrange[k]);
     }
 
@@ -206,7 +214,9 @@ void World::initialize(NimblePixMap& window) {
     AccumulatedFood = 0;
 }
 
-static void DrawBackground(NimblePixMap& window, CompoundRegion& region) {
+namespace {
+
+void DrawBackground(NimblePixMap& window, CompoundRegion& region) {
     if (!region.empty()) {
         Ant* a = Ant::openBuffer();
         a = PondBackground.copyToAnts(a, World::viewTransform);
@@ -215,7 +225,7 @@ static void DrawBackground(NimblePixMap& window, CompoundRegion& region) {
 }
 
 //! Draw Ponds with indices [first,last) in given region
-static void DrawPondGroup(NimblePixMap& window, CompoundRegion& region, size_t first, size_t last) {
+void DrawPondGroup(NimblePixMap& window, CompoundRegion& region, size_t first, size_t last) {
     Ant* a = Ant::openBuffer();
     // Draw self if alive and in given pond
     if (Self.isAlive())
@@ -231,6 +241,8 @@ static void DrawPondGroup(NimblePixMap& window, CompoundRegion& region, size_t f
             a = PondSet[k].copyToAnts(a, World::viewTransform);
     Ant::closeBufferAndDraw(window, region, a, first==0);
 }
+
+} // (anonymous)
 
 void World::draw(NimblePixMap& window) {
 #if 0 
@@ -505,7 +517,6 @@ static const size_t N_KILL_MAX = 64;
 static KillRec KillBuf[N_KILL_MAX];
 static KillRec* KillPtr = KillBuf;
 
-//! Check for contact between Beetle b and some other Voronoi cell.
 void World::checkHit(Beetle& b) {
     Assert(b.kind==BeetleKind::self || b.kind==BeetleKind::missile);
     size_t kMin = b.pondIndex;
@@ -517,13 +528,13 @@ void World::checkHit(Beetle& b) {
     static Neighbor buffer[N_ANT_MAX];
     Neighborhood neighborhood(buffer, sizeof(buffer)/sizeof(buffer[0]));
     neighborhood.start();
-    size_t beginIndex[N_POND_MAX+1];
-    size_t index=0;
+    Neighbor::indexType beginIndex[N_POND_MAX+1];
+    Neighbor::indexType index=0;
     for (size_t k=kMin; k<=kMax; ++k) {
         beginIndex[k] = index;
-        Pond& p = PondSet[k];
-        for (size_t i=0; i<p.size(); ++i) {
-            neighborhood.addPoint(p[i].pos-b.pos, index++);
+        const Pond& p = PondSet[k];
+        for (const auto& p: PondSet[k]) {
+            neighborhood.addPoint(p.pos-b.pos, index++);
         }
     }
     beginIndex[kMax+1] = index;
@@ -535,13 +546,13 @@ void World::checkHit(Beetle& b) {
             continue;
         // Find which pond the cell belongs to
         size_t which=kMin;
-        while (s->index>=beginIndex[which+1]) {
+        while (s->index >= beginIndex[which+1]) {
             ++which;
             Assert(which<=kMax);
         }
         Pond* p = &PondSet[which];
         size_t localIndex = s->index-beginIndex[which];
-        if (localIndex<p->safeSize()) {
+        if (localIndex < p->safeSize()) {
             Beetle& other = (*p)[localIndex];
             Point a = CenterOfCircle(*s, *(s==buffer?e-1:s-1)) + b.pos;
             Point c = CenterOfCircle(*s, *(s+1==e?buffer:s+1)) + b.pos;
@@ -556,7 +567,7 @@ void World::checkHit(Beetle& b) {
                         if (TallyBump(b, other))
                             (KillPtr++)->assign(p, localIndex);
                 }
-                if (other.kind==BeetleKind::water) {
+                if (other.kind == BeetleKind::water) {
                     float r = 1.0f;
                     if (b.kind==BeetleKind::missile) {
                         float d = std::sqrt(Dist2(Self.pos, other.pos));
@@ -564,7 +575,7 @@ void World::checkHit(Beetle& b) {
                         if (d>=dMin)
                             r = dMin/d;
                     }
-                    if (b.kind==BeetleKind::self)
+                    if (b.kind == BeetleKind::self)
                         r = 1.0f;
                     // FIXME - clip segment against Pond/Bridge. 
                     // The maxD limit is a hack in lieu of proper clipping.
@@ -578,7 +589,7 @@ void World::checkHit(Beetle& b) {
 
 void World::updateSelfAndMissiles(NimblePixMap& window, float dt, float forward, float torque) {
     // Update self
-    Assert(KillPtr==KillBuf);
+    Assert(KillPtr == KillBuf);
     Self.update(dt, forward, torque);
     // Set WorldViewTransform so that self is about 1/4 from bottom center of screen and pointed upwards.
     float scale = TheOriginalViewScale*ZoomFactor*Self.tipseyScale();
@@ -590,7 +601,7 @@ void World::updateSelfAndMissiles(NimblePixMap& window, float dt, float forward,
     UpdateSlush(dt);
     // Do kills in decreasing index order, because of the way "Pond::kill" moves items
     std::sort(KillBuf, KillPtr);
-    while (KillPtr>KillBuf)
+    while (KillPtr > KillBuf)
         (--KillPtr)->doKill();
 }
 
@@ -609,7 +620,7 @@ void Zoom(float factor) {
 }
 
 void JumpToPond(int delta) {
-    int i = Clip<int>(0, NumPond-1, Self.pondIndex+delta);
+    const int32_t i = Clip<int32_t>(0, NumPond-1, Self.pondIndex+delta);
     if (i!=Self.pondIndex) {
         Self.pondIndex = i;
         Self.pos = PondSet[i].center();

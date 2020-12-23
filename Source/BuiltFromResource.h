@@ -20,10 +20,8 @@
 #ifndef BuiltFromResource_H
 #define BuiltFromResource_H
 
+#include "Forward.h"
 #include "StartupList.h"
-
-class NimblePixMap;
-class HostResourceLoader;
 
 class BuiltFromResource : public StartupListItem<BuiltFromResource> {
     const char* const myResourceName;

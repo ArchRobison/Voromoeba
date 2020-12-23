@@ -13,6 +13,8 @@
    limitations under the License.
  */
 
+#include "Forward.h"
+
  //! Module for the "about the author" screen.
 class About {
 public:

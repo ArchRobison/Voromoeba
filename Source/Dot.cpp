@@ -13,6 +13,7 @@
    limitations under the License.
  */
 
+#include "Enum.h"
 #include "Pond.h"
 #include "Utility.h"
 #include "World.h"
@@ -28,11 +29,16 @@ enum class DotKind : int8_t {
     cross
 };
 
-constexpr size_t N_DotKind = size_t(DotKind::cross) + 1;
+} // (anonymous)
+
+template<>
+constexpr DotKind EnumMax<DotKind> = DotKind::cross;
+
+namespace {
 
 typedef bool DotImage[2*DotRadius+1][2*DotRadius+1];
-EnumMap<DotKind, N_DotKind, DotImage> DotSet;
-EnumMap<BeetleKind, N_BeetleKind, const DotImage*> DotOf;
+EnumMap<DotKind, DotImage> DotSet;
+EnumMap<BeetleKind, const DotImage*> DotOf;
 
 int Abs(int i) {
     return i<0 ? -i : i;
@@ -72,9 +78,9 @@ void DrawDots(NimblePixMap& window, const Pond& p) {
         // Reject.  Circle around window does not overlap Pond.
         return;
 
-    for (const Beetle* b = p.begin(); b!=p.end(); ++b) {
-        Point p = World::viewTransform.transform(b->pos);
-        const DotImage& d = *DotOf[b->kind];
+    for (const Beetle& b : p) {
+        const Point p = World::viewTransform.transform(b.pos);
+        const DotImage& d = *DotOf[b.kind];
         Assert(&d);
         int i=Round(p.y);
         int j=Round(p.x);
@@ -85,6 +91,6 @@ void DrawDots(NimblePixMap& window, const Pond& p) {
         for (int y=yt; y<yb; ++y)
             for (int x=xl; x<xr; ++x)
                 if (d[y-i+r][x-j+r])
-                    *(NimblePixel*)window.at(x, y) = b->color.interior();
+                    *(NimblePixel*)window.at(x, y) = b.color.interior();
     }
 }
