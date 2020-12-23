@@ -1,0 +1,78 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest", "UnitTest.vcxproj", "{D016BEB2-592D-4A8E-8C05-189BDB064447}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Voromoeba", "Voromoeba.vcxproj", "{975F9189-1B03-40F7-8E91-F8B30BAC245E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug FULL SCREEN|Win32 = Debug FULL SCREEN|Win32
+		Debug FULL SCREEN|x64 = Debug FULL SCREEN|x64
+		Debug no assertions|Win32 = Debug no assertions|Win32
+		Debug no assertions|x64 = Debug no assertions|x64
+		Debug no iterator debugging|Win32 = Debug no iterator debugging|Win32
+		Debug no iterator debugging|x64 = Debug no iterator debugging|x64
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release Full Screen Wizard|Win32 = Release Full Screen Wizard|Win32
+		Release Full Screen Wizard|x64 = Release Full Screen Wizard|x64
+		Release FULL SCREEN|Win32 = Release FULL SCREEN|Win32
+		Release FULL SCREEN|x64 = Release FULL SCREEN|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Debug FULL SCREEN|Win32.ActiveCfg = Debug FULL SCREEN|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Debug FULL SCREEN|x64.ActiveCfg = Debug FULL SCREEN|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Debug FULL SCREEN|x64.Build.0 = Debug FULL SCREEN|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Debug no assertions|Win32.ActiveCfg = Debug no assertions|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Debug no assertions|x64.ActiveCfg = Debug no assertions|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Debug no assertions|x64.Build.0 = Debug no assertions|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Debug no iterator debugging|Win32.ActiveCfg = Debug no iterator debugging|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Debug no iterator debugging|Win32.Build.0 = Debug no iterator debugging|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Debug no iterator debugging|x64.ActiveCfg = Debug no iterator debugging|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Debug|Win32.ActiveCfg = Debug|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Debug|x64.ActiveCfg = Debug|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Debug|x64.Build.0 = Debug|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Release Full Screen Wizard|Win32.ActiveCfg = Release Full Screen Wizard|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Release Full Screen Wizard|x64.ActiveCfg = Release Full Screen Wizard|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Release Full Screen Wizard|x64.Build.0 = Release Full Screen Wizard|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Release FULL SCREEN|Win32.ActiveCfg = Release|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Release FULL SCREEN|Win32.Build.0 = Release|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Release FULL SCREEN|x64.ActiveCfg = Release Full Screen Wizard|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Release FULL SCREEN|x64.Build.0 = Release Full Screen Wizard|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Release|Win32.ActiveCfg = Release|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Release|x64.ActiveCfg = Release|x64
+		{D016BEB2-592D-4A8E-8C05-189BDB064447}.Release|x64.Build.0 = Release|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Debug FULL SCREEN|Win32.ActiveCfg = Debug FULL SCREEN|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Debug FULL SCREEN|x64.ActiveCfg = Debug FULL SCREEN|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Debug FULL SCREEN|x64.Build.0 = Debug FULL SCREEN|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Debug no assertions|Win32.ActiveCfg = Debug no assertions|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Debug no assertions|x64.ActiveCfg = Debug no assertions|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Debug no assertions|x64.Build.0 = Debug no assertions|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Debug no iterator debugging|Win32.ActiveCfg = Debug no iterator debugging|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Debug no iterator debugging|Win32.Build.0 = Debug no iterator debugging|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Debug no iterator debugging|x64.ActiveCfg = Debug no iterator debugging|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Debug|Win32.ActiveCfg = Debug|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Debug|x64.ActiveCfg = Debug|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Debug|x64.Build.0 = Debug|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Release Full Screen Wizard|Win32.ActiveCfg = Release Full Screen Wizard|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Release Full Screen Wizard|x64.ActiveCfg = Release Full Screen Wizard|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Release Full Screen Wizard|x64.Build.0 = Release Full Screen Wizard|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Release FULL SCREEN|Win32.ActiveCfg = Release FULL SCREEN|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Release FULL SCREEN|x64.ActiveCfg = Release FULL SCREEN|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Release FULL SCREEN|x64.Build.0 = Release FULL SCREEN|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Release|Win32.ActiveCfg = Release|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Release|x64.ActiveCfg = Release|x64
+		{975F9189-1B03-40F7-8E91-F8B30BAC245E}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {403709D9-FD37-439A-B839-7942CD8BA0AE}
+	EndGlobalSection
+EndGlobal
