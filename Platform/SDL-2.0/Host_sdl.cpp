@@ -23,31 +23,61 @@ limitations under the License.
 #include <string>
 #include <vector>
 #ifdef _WIN32
-#include <direct.h>
+#include <direct.h> // Defines _getcwd
 #endif
 
-static SDL_PixelFormat* ScreenFormat;
+#define LOGFILE 1
+
+namespace {
+
+FILE* LogFile;
+SDL_PixelFormat* ScreenFormat;
 
 #ifdef __APPLE__
 // MacOS/SDL-2 have a texture synchronization bug on MacBook Airs running MacOS 10.11.1.  
 // The code works around the bug by manual double-buffering.
-const int N_TEXTURE = 2;
+constexpr int N_TEXTURE = 2;
 #else
-const int N_TEXTURE = 1;
+constexpr int N_TEXTURE = 1;
 #endif
 
 static void ReportResourceError(const char* routine, const char* resourceName, const char* error) {
-    std::printf("Internal error: %s failed %s: %s\n", routine, resourceName, error);
+    fprintf(LogFile, "Internal error: %s failed %s: %s\n", routine, resourceName, error);
+    fflush(LogFile);
     HostExit();
 }
 
-void HostLoadResource(BuiltFromResourcePixMap& item) {
+std::string GetResourcePath(const BuiltFromResource& item, const char* suffix) {
 #if defined(HOST_RESOURCE_PATH)
-    std::string path(HOST_RESOURCE_PATH);
+    static std::string path(HOST_RESOURCE_PATH);
 #else
-    std::string path("../../../Resource");
+    static std::string path;
+    if (path.empty()) {
+        // On first call, search for file by walking up through parent directories.
+        // On subsequent calls, reuse the directory.
+        path = "Resource/";
+        FILE* f;
+        for (int i = 0; i < 8; ++i) {
+            f = fopen((path + item.resourceName() + suffix).c_str(), "rb");
+            if (f)
+                break;
+            path = "../" + path;
+        }
+        if (!f) {
+            fprintf(LogFile, "Cannot find resource %s\n", item.resourceName());
+            fflush(LogFile);
+            exit(1);
+        }
+        fclose(f);
+    }
 #endif
-    path = path + "/" + item.resourceName() + ".png";
+    return path + "/" + item.resourceName() + suffix;
+}
+
+} // (anonymous)
+
+void HostLoadResource(BuiltFromResourcePixMap& item) {
+    const auto path = GetResourcePath(item, ".png");
     if (SDL_Surface* raw = IMG_Load(path.c_str())) {
         if (SDL_Surface* image = SDL_ConvertSurface(raw, ScreenFormat, 0)) {
             SDL_FreeSurface(raw);
@@ -68,21 +98,20 @@ void HostLoadResource(BuiltFromResourcePixMap& item) {
 #else
         char* cwd = getcwd(nullptr, 0);
 #endif /*__APPLE__*/
-        std::printf("cwd = %s\n", cwd);
+        std::fprintf(LogFile, "cwd = %s\n", cwd);
         std::free(cwd);
         ReportResourceError("IMG_Load", path.c_str(), IMG_GetError());
     }
 }
 
 void HostLoadResource(BuiltFromResourceWaveform& item) {
-#if defined(HOST_RESOURCE_PATH)
-    std::string path(HOST_RESOURCE_PATH);
-#else
-    std::string path("../../../Resource");
-#endif
-    path = path + "/" + item.resourceName() + ".wav";
+    const auto path = GetResourcePath(item, ".wav");
     FILE* f = std::fopen(path.c_str(), "rb");
-    Assert(f); // FIXME - should issue error message
+    if (!f) {
+        fprintf(LogFile, "Cannot open %s\n", path.c_str());
+        fflush(LogFile);
+        exit(1);
+    }
     std::fseek(f, 0L, SEEK_END);
     const long size = std::ftell(f);
     std::fseek(f, 0L, SEEK_SET);
@@ -126,7 +155,7 @@ inline void Associate(SDL_Scancode code, int key) {
     Assert(unsigned(code)<SDL_NUM_SCANCODES);
     Assert(unsigned(key)<HOST_KEY_LAST);
     ScanCodeFromHostKey[key] = code;
-    HostKeyFromScanCode[code] =key;
+    HostKeyFromScanCode[code] = key;
 }
 
 bool HostIsKeyDown(int key) {
@@ -136,7 +165,9 @@ bool HostIsKeyDown(int key) {
     return i<numKeys ? state[i] : false;
 }
 
-static void InitializeKeyTranslationTables() {
+namespace {
+
+void InitializeKeyTranslationTables() {
 #if 0
     for (int i=' '; i<='@'; ++i)
         KeyTranslate[i] = i;
@@ -144,6 +175,11 @@ static void InitializeKeyTranslationTables() {
     Associate(SDL_SCANCODE_SPACE, ' ');
     for (int i='a'; i<='z'; ++i)
         Associate(SDL_Scancode(SDL_SCANCODE_A+(i-'a')), i);
+    for (int i='1'; i<='9'; ++i)
+        Associate(SDL_Scancode(SDL_SCANCODE_1 + (i-'1')), i);
+    Associate(SDL_SCANCODE_0, '0');
+    Associate(SDL_SCANCODE_MINUS, '-');
+    Associate(SDL_SCANCODE_EQUALS, '=');
     Associate(SDL_SCANCODE_RETURN, HOST_KEY_RETURN);
     Associate(SDL_SCANCODE_ESCAPE, HOST_KEY_ESCAPE);
     Associate(SDL_SCANCODE_LEFT, HOST_KEY_LEFT);
@@ -152,7 +188,7 @@ static void InitializeKeyTranslationTables() {
     Associate(SDL_SCANCODE_DOWN, HOST_KEY_DOWN);
 }
 
-static void PollEvents() {
+void PollEvents() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
@@ -173,12 +209,12 @@ static void PollEvents() {
     }
 }
 
-static void CallbackAdaptor(void* userdata, Uint8* stream, int len) {
+void CallbackAdaptor(void* userdata, Uint8* stream, int len) {
     Assert(len % (2*sizeof(float)) == 0);
     GameGetSoundSamples((float*)stream, len / sizeof(float));
 }
 
-static void InitializeSound() {
+void InitializeSound() {
     // Install audio callback
     SDL_AudioSpec spec{};
     spec.freq =  GameSoundSamplesPerSec;
@@ -197,10 +233,10 @@ static void InitializeSound() {
     SDL_PauseAudioDevice(dev, 0);
 }
 
-static const bool UseRendererForUnlimitedRate = true;
+constexpr bool UseRendererForUnlimitedRate = true;
 
 //! Destroy renderer and texture, then recreate them if they are to be used.  Return true if success; false if error occurs.
-static bool RebuildRendererAndTexture(SDL_Window* window, int w, int h, SDL_Renderer*& renderer, SDL_Texture* texture[N_TEXTURE]) {
+bool RebuildRendererAndTexture(SDL_Window* window, int w, int h, SDL_Renderer*& renderer, SDL_Texture* texture[N_TEXTURE]) {
     for (int i=0; i<N_TEXTURE; ++i)
         if (texture[i]) {
             SDL_DestroyTexture(texture[i]);
@@ -231,15 +267,24 @@ static bool RebuildRendererAndTexture(SDL_Window* window, int w, int h, SDL_Rend
     return true;
 }
 
+} // (anonymous)
+
 int main(int argc, char* argv[]) {
+    if (argc >= 2) {
+        LogFile = fopen(argv[1], "w");
+    } else {
+        LogFile = stderr;
+    }
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == -1) {
-        printf("Internal error: SDL_Init failed: %s\n", SDL_GetError());
+        fprintf(LogFile, "Internal error: SDL_Init failed: %s\n", SDL_GetError());
+        fflush(LogFile);
         exit(1);
     }
     atexit(SDL_Quit);
     SDL_DisplayMode displayMode;
     if (SDL_GetCurrentDisplayMode(0, &displayMode)) {
-        printf("Internal error: SDL_GetCurrentDisplayMode failed: %s\n", SDL_GetError());
+        fprintf(LogFile, "Internal error: SDL_GetCurrentDisplayMode failed: %s\n", SDL_GetError());
+        fflush(LogFile);
         exit(1);
     }
     int w = displayMode.w;

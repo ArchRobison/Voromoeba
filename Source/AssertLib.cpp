@@ -19,12 +19,15 @@
 
 #include "AssertLib.h"
 #include <cassert>
+#include <cstdio>
 
 #if ASSERTIONS
 #if !USE_HOST_ASSERT
 extern void AssertionFailure(const char* filename, int line, const char* expression) {
     {
         // It's often handy to set a breakpoint on the assertion below.
+        std::fprintf(stderr, " assertion failure file %s line %d: %s\n", filename, line, expression);
+        std::fflush(stderr);
         assert(0);
     }
 }

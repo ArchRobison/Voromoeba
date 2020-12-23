@@ -47,7 +47,7 @@ enum ShowKind {
 static ShowKind ShowWhat = ShowSplash;
 
 #if WIZARD_ALLOWED
-static const bool IsWizard = true;
+static constexpr bool IsWizard = true;
 #endif
 
 void DoShowAbout() {
