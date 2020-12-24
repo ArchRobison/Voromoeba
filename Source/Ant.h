@@ -28,27 +28,35 @@ constexpr float AntInfinity = std::numeric_limits<float>::max();
 //! Display Voronoi seeds if set
 extern bool ShowAnts;
 
-//! A Voronoi generator point and its associated interior/exterior colors.
+//! A Voronoi generator point and its associated interior/exterior colors. 
+//! Also has static members that implement a module for buffering Ants.
 class Ant : public Point {
 public:
     OutlinedColor color;
+
     //! Functor for sorting by x coordinate
     struct lessX {
         bool operator()(const Ant& a, const Ant& b) const { return a.x<b.x; }
     };
+
     //! Functor for sorting by y coordinate
     struct lessY {
         bool operator()(const Ant& a, const Ant& b) const { return a.y<b.y; }
     };
+
+    //! True if Ant is a "bookend" Ant.
     bool isBookend() const {
         return std::fabs(y)==AntInfinity;
     }
+
     void assignFirstBookend() {
         y = -AntInfinity;
     }
+
     void assignLastBookend() {
         y = AntInfinity;
     }
+
     template<typename Color>
     void assign(Point pos_, Color color_) {
         Assert(std::fabs(pos_.y) < AntInfinity);

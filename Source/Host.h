@@ -13,12 +13,21 @@
    limitations under the License.
  */
 
- /******************************************************************************
-  OS specific services on the host that are called from OS-independent game code.
- *******************************************************************************/
+#ifndef Host_H
+#define Host_H
+
+//! \file Host.h
+//! 
+//! OS specific services on the host that are called from OS-independent game code.
+//! See Game.h for game routines that are called from host-specific code.
+
+#include <string>
 
 //! Set to 1 if platform supports playing sounds.
 #define HAVE_SOUND_OUTPUT 1
+
+//! Set to 1 if platform supports shared application data, e.g. a score file.
+#define HAVE_APPLICATION_DATA 1
 
  //! Return current absolute time in seconds.
  /** Only the difference between two calls are meaningful, because the
@@ -31,14 +40,17 @@ double HostClockTime();
 void HostSetFrameIntervalRate(int limit);
 
 //! Enumeration of keys corresponding to non-printing characters. 
-enum {
+enum : int32_t {
     HOST_KEY_BACKSPACE=8,
     HOST_KEY_RETURN=0xD,
     HOST_KEY_ESCAPE=0x1B,
+    HOST_KEY_DELETE=0x7F,
     HOST_KEY_LEFT = 256,
     HOST_KEY_RIGHT,
     HOST_KEY_UP,
     HOST_KEY_DOWN,
+    HOST_KEY_LSHIFT,
+    HOST_KEY_RSHIFT,
     HOST_KEY_LAST           // Value for declaring arrays
 };
 
@@ -68,12 +80,17 @@ class BuiltFromResourceWaveform;
 void HostLoadResource(BuiltFromResourceWaveform& item);
 #endif
 
-//! Get path to application data file to be shared across multiple users.
-const char* HostGetCommonAppData(const char* pathSuffix);
+#if HAVE_APPLICATION_DATA
+//! Get path to application data directory to be shared across multiple users.
+std::string HostApplicationDataDir();
+#endif
 
-//! Print warning message.  Current Windows implementation does not return.
+//! Print warning message. 
 //!
-//! Intended for warning during startup.
+//! Intended for warning during startup. The message should end in "\n".
 void HostWarning(const char* message);
 
+//! Show cursor iff show is true.
 void HostShowCursor(bool show);
+
+#endif /* Host_H */

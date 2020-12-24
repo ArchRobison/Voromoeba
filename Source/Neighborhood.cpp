@@ -16,7 +16,7 @@
 #include "Neighborhood.h"
 #include <algorithm>
 
-static inline bool ClockwiseOrInCircle(const Neighbor* a, const Neighbor* b, const Neighbor* c) {
+inline bool ClockwiseOrInCircle(const Neighbor* a, const Neighbor* b, const Neighbor* c) {
     Assert(Cross(*a, *b)>=0);
     Assert(Cross(*b, *c)>=0);
     return Cross(*a, *c)<=0 || InCircle(*a, *b, *c);

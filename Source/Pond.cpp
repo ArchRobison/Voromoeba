@@ -88,7 +88,7 @@ void Pond::initialize(NimblePixMap& window, size_t n, PondOptionSet pondOptions,
     // FIXME - really just need to permute positions
     for (size_t i=size(); --i>0; ) {
         // Choose a beetle in the range [0..i)
-        auto j = RandomUInt(i);
+        auto j = RandomUInt(static_cast<uint32_t>(i));
         std::swap((*this)[i], (*this)[j]);
     }
     size_t sweetieEnd = 0;
@@ -118,9 +118,9 @@ void Pond::initialize(NimblePixMap& window, size_t n, PondOptionSet pondOptions,
         foodFrac = 0.2f;
         myPredatorCount = predatorFrac*size();
     }
-    size_t predatorEnd = sweetieEnd+myPredatorCount;
-    size_t foodEnd = predatorEnd+foodFrac*size();
-    size_t orangeEnd = foodEnd+numOrange;
+    const size_t predatorEnd = sweetieEnd + myPredatorCount;
+    const size_t foodEnd = predatorEnd + foodFrac*size();
+    const size_t orangeEnd = foodEnd + numOrange;
 
     // Set sweetie color wobble parameters
     if (sweetieEnd) {
@@ -166,9 +166,9 @@ void Pond::initialize(NimblePixMap& window, size_t n, PondOptionSet pondOptions,
             Beetle& b = (*this)[k];
             if (b.kind!=BeetleKind::water) {
                 // Find water to swap it with
-                size_t j;
+                uint32_t j;
                 do {
-                    j = RandomUInt(size()-n_close) + n_close;
+                    j = RandomUInt(static_cast<uint32_t>(size()-n_close)) + n_close;
                 } while ((*this)[j].kind!=BeetleKind::water);
                 Beetle& c = (*this)[j];
                 std::swap(b.pos, c.pos);

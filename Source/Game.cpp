@@ -165,29 +165,26 @@ static void Draw(NimblePixMap& screen) {
     switch (ShowWhat) {
         case ShowKind::ponds: {
             extern VoronoiMeter TheScoreMeter;
-#if !WIZARD_ALLOWED
             ShowAnts &= TheScoreMeter.score()<20;
-#endif
             World::draw(screen);
             TheScoreMeter.drawOn(screen, 0, screen.height()-TheScoreMeter.height());
             break;
         }
-        case ShowKind::vanity: {
+        case ShowKind::vanity: 
             TheVanityBoard.draw(screen);
             break;
-        }
-        case ShowKind::splash: {
+ 
+        case ShowKind::splash:
             Splash::draw(screen);
             break;
-        }
-        case ShowKind::about: {
+
+        case ShowKind::about: 
             About::draw(screen);
             break;
-        }
-        case ShowKind::help: {
+
+        case ShowKind::help: 
             Help::draw(screen);
             break;
-        }
     }
     if (ShowFrameRate) {
         FrameRateMeter.setValue(EstimateFrameRate());
@@ -216,18 +213,27 @@ void GameUpdateDraw(NimblePixMap& screen, NimbleRequest request) {
 }
 
 void GameKeyDown(int key) {
-    if (key==HOST_KEY_ESCAPE) {
-        HostExit();
-        return;
+    // Handle globally meaningful keys
+    switch (key) {
+        case HOST_KEY_ESCAPE:
+            HostExit();
+            return;
+        case HOST_KEY_LSHIFT:
+        case HOST_KEY_RSHIFT:
+            return;
     }
     if (TheVanityBoard.isEnteringName()) {
         Assert(ShowWhat==ShowKind::vanity);
+        if (std::islower(key) && (HostIsKeyDown(HOST_KEY_LSHIFT) || HostIsKeyDown(HOST_KEY_RSHIFT)))
+            key = std::toupper(key);
         TheVanityBoard.enterNextCharacterOfName(key);
         return;
     }
+
     // Canonicalize to lower case
     if ('A'<=key && key<='Z')
         key = key-'A'+'a';
+
     // Keys whose meaning is independent what is being shown
     switch (key) {
         case 'f':
@@ -271,30 +277,6 @@ void GameKeyDown(int key) {
             }
             break;
 #endif
-        case 'o': {
-            PlaySound(SoundKind::destroyOrange);
-            break;
-        }
-        case 'l': {
-            TheScoreMeter.addLife(1);
-            PlaySound(SoundKind::smooch);
-            break;
-        }
-        case 'm': {
-            TheScoreMeter.addMissile(1);
-            break;
-        }
-#if 0 
-        case 't':           // Need different letter
-            if (IsWizard) {
-                Self.startTipsey();
-            }
-            break;
-#endif
-        case 'y': {
-            PlaySound(SoundKind::eatOrange);
-            break;
-        }
         case '1': {
             // For testing end of game
             if (IsWizard) {
@@ -303,7 +285,7 @@ void GameKeyDown(int key) {
             }
             break;
         }
-#endif
+#endif /* WIZARD_ALLOWED */
     }
     // Keys whose meaning depends on what is being shown
     switch (ShowWhat) {
@@ -354,6 +336,30 @@ void GameKeyDown(int key) {
                         EndPlay();
                     break;
                 }
+#if WIZARD_ALLOWED
+                case 'o': {
+                    PlaySound(SoundKind::destroyOrange);
+                    break;
+                }
+                case 'l': {
+                    TheScoreMeter.addLife(1);
+                    PlaySound(SoundKind::smooch);
+                    break;
+                }
+                case 'm': {
+                    TheScoreMeter.addMissile(1);
+                    break;
+                }
+                case 'p':           // Mnemonic: "plastered"
+                    if (IsWizard) {
+                        Self.startTipsey();
+                    }
+                    break;
+                case 'y': {
+                    PlaySound(SoundKind::eatOrange);
+                    break;
+                }
+#endif /* WIZARD_ALLOWED */
             }
             break;
         case ShowKind::about:

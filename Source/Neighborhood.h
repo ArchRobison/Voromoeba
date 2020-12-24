@@ -36,7 +36,7 @@ private:
     friend class Neighborhood;
 };
 
-//! Computes neighbors of target point in a Voronoi diagram
+//! Used to compute neighbors of a target point in a Voronoi diagram
 class Neighborhood {
     Neighbor* const mySortedBegin;
     Neighbor* mySortedEnd;
@@ -53,13 +53,13 @@ public:
     void start();
     void addPoint(Point p, Neighbor::indexType index);
     //! Finish computing neighbors and return number 'n' of neighbors
-    /** Afterwards, buffer[0..n-1] contain the neighbors.
-        Some may be "ghosts" with index==ghostIndex. */
+    //! Afterwards, buffer[0..n-1] contain the neighbors.
+    //! Some may be "ghosts" with index==Neighbor::ghostIndex. */
     size_t finish();
 };
 
 inline void Neighborhood::addPoint(Point p, Neighbor::indexType index) {
-    float alpha = PseudoAngle(p.x, p.y);
+    const float alpha = PseudoAngle(p.x, p.y);
     myExtraEnd->assign(p, alpha, index);
     if (tentativeAccept(*myExtraEnd))
         if (++myExtraEnd>=myExtraLimit)

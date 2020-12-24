@@ -16,6 +16,9 @@
 #ifndef Geometry_H
 #define Geometry_H
 
+ //! \file Geometry.h
+ //! Functions related to geometry.
+
 #include "Utility.h"
 #include "AssertLib.h"
 #include <cmath>
@@ -78,18 +81,17 @@ inline Point operator/(const Point& a, float s) {
 
 //! Dot product of two points
 inline float Dot(const Point& a, const Point& b) {
-    return a.x*
-        b.x+a.y*b.y;
+    return a.x*b.x + a.y*b.y;
 }
 
 //! Cross product of two points
 inline float Cross(const Point& a, const Point& b) {
-    return a.x*b.y-a.y*b.x;
+    return a.x*b.y - a.y*b.x;
 }
 
 //! Complex multiplication of two points
 inline Point Multiply(const Point& a, const Point& b) {
-    return Point(a.x*b.x-a.y*b.y, a.x*b.y+a.y*b.x);
+    return Point(a.x*b.x - a.y*b.y, a.x*b.y + a.y*b.x);
 }
 
 //! Point with polar coordinates f, theta
@@ -119,10 +121,10 @@ inline float Distance(const Point& a, const Point& b) {
 
 //! Unit vector in same direction as vector a.
 inline Point UnitVector(const Point& a) {
-    return a/std::sqrt(Dist2(a));
+    return a/Distance(a);
 }
 
-//! Return x such that (x,y) lies on perpendicular bisector of Segment (lx,ly)--(rx,ry) 
+//! Return x such that (x,y) lies on perpendicular bisector of segment (lx,ly)--(rx,ry) 
 inline float BisectorInterceptX(float y, Point l, Point r) {
     return 0.5f*((l.x+r.x) - ((2.0f*y-(l.y+r.y))*(l.y-r.y))/(l.x-r.x));
 }
@@ -134,41 +136,40 @@ inline float BisectorInterceptY(float x, Point l, Point r) {
 
 //! Return center of circle passing through points (0,0), a, and b.
 inline Point CenterOfCircle(Point a, Point b) {
-    float d = Cross(a, b);
+    const float d = Cross(a, b);
     Assert(d!=0);
-    float ar = Dist2(a);
-    float br = Dist2(b);
-    float e = 0.5f/d;
-    return Point((ar*b.y-br*a.y)*e,
-        (br*a.x-ar*b.x)*e);
+    const float ar = Dist2(a);
+    const float br = Dist2(b);
+    const float e = 0.5f/d;
+    return Point((ar*b.y-br*a.y)*e, (br*a.x-ar*b.x)*e);
 }
 
 //! Return Y coordinate of center of circle through points a, b, and c.
 inline float CenterOfCircleY(Point a, Point b, Point c) {
     a -= b;
     c -= b;
-    float d = Cross(a, c);
+    const float d = Cross(a, c);
     return (Dist2(c)*a.x-Dist2(a)*c.x)*0.5f/d + b.y;
 }
 
-//! Return if point d is inside a circle passing through points (0,0), a, and b.
-/** The latter three points must be in counter-clockwise order. */
+//! \brief Return if point d is inside a circle passing through points (0,0), a, and b.
+//!
+//! The latter three points must be in counter-clockwise order. 
 inline bool InCircle(Point a, Point d, Point b) {
     Assert(Cross(a, b)>0);
-    float m00 = a.x, m01 = a.y, m02 = a.x*a.x+a.y*a.y;
-    float m10 = b.x, m11 = b.y, m12 = b.x*b.x+b.y*b.y;
-    float m20 = d.x, m21 = d.y, m22 = d.x*d.x+d.y*d.y;
-    float det = m00*(m11*m22-m21*m12) +
-        m10*(m21*m02-m01*m22) +
-        m20*(m01*m12-m11*m02);
+    const float m00 = a.x, m01 = a.y, m02 = a.x*a.x+a.y*a.y;
+    const float m10 = b.x, m11 = b.y, m12 = b.x*b.x+b.y*b.y;
+    const float m20 = d.x, m21 = d.y, m22 = d.x*d.x+d.y*d.y;
+    const float det = m00*(m11*m22-m21*m12) + m10*(m21*m02-m01*m22) + m20*(m01*m12-m11*m02);
     return det<=0;
 }
 
-//! Return pseudo-angle of point(x,y) with respect to orgin.
-/** A full circle has 8 pseudo-radians.
-    The corners of a square correspond to 0, 2, 4, 6 in counterclockwise order, starting with the lower right corner.
-    The midpoints of the sides correspond to 1, 3, 5, 7 in counterlockwise order, starting with the right side.
-    PseudoAngles have the same total order as regular angles, but are faster to compute. */
+//! \brief Return pseudo-angle of point(x,y) with respect to orgin.
+//!
+//! A full circle has 8 pseudo-radians.
+//! The corners of a square correspond to 0, 2, 4, 6 in counterclockwise order, starting with the lower right corner.
+//! The midpoints of the sides correspond to 1, 3, 5, 7 in counterlockwise order, starting with the right side.
+//! PseudoAngles have the same total order as regular angles, but are faster to compute. 
 inline float PseudoAngle(float x, float y) {
     Assert(Dist2(x, y)>0);
     if (x>=y) {
@@ -194,15 +195,15 @@ inline float PseudoAngle(float x, float y) {
 
 //! Representation of angle that always returns value reduced to [-pi,pi)
 class ReducedAngle {
-    //! Fixed point representation of the angle.
-    int a;
+    //! Fixed-point representation of the angle.
+    int32_t a;
     // Value equal to quarter angle
-    static float scale() { return float(1.5707963268/(1<<(sizeof(int)*8-2))); }
+    static constexpr float scale() { return float(1.5707963268 / (1<<(sizeof(int32_t)*8-2))); }
 public:
     // Add value in radians
     void operator+=(float delta) {
-        // Assumes that int arithmetic wraps around
-        a += int(delta*(1/scale()));
+        // Assumes that int32_t arithmetic wraps around
+        a += int32_t(delta*(1/scale()));
     }
     // Return value in radians
     operator float() {
@@ -210,13 +211,14 @@ public:
     }
 };
 
-//! Transform that rotates a vector with high precision
-/** Objective is to minimize change to the vector's length, which is
-    useful in scenarios where the rotation is applied many times to the same vector. */
+//! \brief Transform that rotates a vector with high precision
+//!
+//! Objective is to minimize change to the vector's length, which is useful
+//! in scenarios where the rotation is applied many times to the same vector. 
 class PreciseRotation {
     double x, y;
 public:
-    PreciseRotation(double theta) : x(cos(theta)), y(sin(theta)) {}
+    PreciseRotation(double theta) : x(std::cos(theta)), y(std::sin(theta)) {}
     Point operator()(Point p) const {
         return Point(float(x*p.x-y*p.y), float(x*p.y+y*p.x));
     }
@@ -237,11 +239,8 @@ public:
     }
     //! Inverse transform
     LinearTransform inverse() const {
-        float dinv = 1.0f/det();
-        return LinearTransform(dinv*d,
-            -dinv*b,
-            -dinv*c,
-            dinv*a);
+        const float dinv = 1.0f/det();
+        return LinearTransform(dinv*d, -dinv*b, -dinv*c, dinv*a);
     }
     //! Apply transform
     Point operator()(Point p) const {
@@ -258,19 +257,19 @@ class AffineTransform {
     LinearTransform myLinear;
     Point myOffset;
 public:
-    // Construct undefined affine transform
-    AffineTransform() {}
-    // Construct transform x=>ax+b
+    //! Construct undefined affine transform
+    AffineTransform() = default;
+    //! Construct transform x=>ax+b
     AffineTransform(const LinearTransform& a, const Point& b) : myLinear(a), myOffset(b) {}
-    // Construct affine transform that maps a=>(0,1), b=>(0,0), c=>(1,0)
+    //! Construct affine transform that maps a=>(0,1), b=>(0,0), c=>(1,0)
     AffineTransform(Point a, Point b, Point c);
-    // Apply transform to a point
+    //! Apply transform to a point
     Point operator()(Point p) const {
         return myLinear(p)+myOffset;
     }
-    // Return linear portion of transform
+    //! Return linear portion of transform
     const LinearTransform& linear() const { return myLinear; }
-    // Apply inverse transform to a point
+    //! Apply inverse transform to a point
     Point inverse(Point p) const {
         return myLinear.inverse(p-myOffset);
     }
@@ -311,7 +310,7 @@ public:
     //! True if interior (or boundary) of a circle and a line segment p-q overlap.
     bool overlapsSegment(Point p, Point q) const;
 #if ASSERTIONS
-    //! True if circle contains or almost contains point p
+    //! True if circle contains or almost contains point p.
     bool fuzzyContains(Point p) const;
 #endif /* ASSERTIONS */
     /** Given point p and vector v, return s such that p+sv intersects the circle.
@@ -334,7 +333,7 @@ public:
 
     //! Return projection of p on perimeter of the circle
     Point projectOntoPerimeter(Point p) const {
-        return myCenter+radius()*UnitVector(p-myCenter);
+        return myCenter + radius()*UnitVector(p-myCenter);
     }
 };
 
@@ -342,11 +341,11 @@ inline bool Circle::overlapsSegment(Point p, Point q) const {
     if (contains(p) || contains(q))
         return true;
     else {
-        float a = Dot(myCenter-p, q-p);
+        const float a = Dot(myCenter-p, q-p);
         if (a<=0)
             return false;
         else {
-            float b = Dist2(p, q);
+            const float b = Dist2(p, q);
             return a<=b && contains(p + (a/b)*(q-p));
         }
     }
@@ -541,9 +540,9 @@ inline Point Grating::reflect(Point /*p*/, Point v) const {
 
 //! A geometric transform combining scaling, rotation and translation.
 class ViewTransform {
-    Point srot;         // Scale and rotation (as a complex factor)
-    Point offset;       // Offset applied after scale and rotation
-    float myScale;      // Scale.  Should be same as Distance(srot).
+    Point srot;         //!< Scale and rotation (as a complex factor)
+    Point offset;       //!< Offset applied after scale and rotation
+    float myScale;      //!< Scale.  Should be same as Distance(srot).
 public:
     //! Create identity transform
     ViewTransform() : srot(1, 0), offset(0, 0), myScale(1) {}

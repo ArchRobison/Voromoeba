@@ -180,12 +180,17 @@ void InitializeKeyTranslationTables() {
     Associate(SDL_SCANCODE_0, '0');
     Associate(SDL_SCANCODE_MINUS, '-');
     Associate(SDL_SCANCODE_EQUALS, '=');
+    Associate(SDL_SCANCODE_PERIOD, '.');
+    Associate(SDL_SCANCODE_BACKSPACE, HOST_KEY_BACKSPACE);
     Associate(SDL_SCANCODE_RETURN, HOST_KEY_RETURN);
     Associate(SDL_SCANCODE_ESCAPE, HOST_KEY_ESCAPE);
     Associate(SDL_SCANCODE_LEFT, HOST_KEY_LEFT);
     Associate(SDL_SCANCODE_RIGHT, HOST_KEY_RIGHT);
     Associate(SDL_SCANCODE_UP, HOST_KEY_UP);
     Associate(SDL_SCANCODE_DOWN, HOST_KEY_DOWN);
+    Associate(SDL_SCANCODE_LSHIFT, HOST_KEY_LSHIFT);
+    Associate(SDL_SCANCODE_RSHIFT, HOST_KEY_RSHIFT);
+    Associate(SDL_SCANCODE_DELETE, HOST_KEY_DELETE);
 }
 
 void PollEvents() {
@@ -196,7 +201,10 @@ void PollEvents() {
             /* Pass the event data onto PrintKeyInfo() */
             case SDL_KEYDOWN:
                 /*case SDL_KEYUP:*/
-                GameKeyDown(HostKeyFromScanCode[event.key.keysym.scancode]);
+                if (const int key = HostKeyFromScanCode[event.key.keysym.scancode])
+                {
+                    GameKeyDown(HostKeyFromScanCode[event.key.keysym.scancode]);
+                }
                 break;
 
             case SDL_QUIT:
@@ -370,6 +378,24 @@ void HostShowCursor(bool show) {
     SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
 }
 
-const char* HostGetCommonAppData(const char* pathSuffix) {
-    return "C:\\tmp\\tmp.dat";
+#ifdef _WIN32
+#include <shlobj_core.h>
+#pragma warning( push )
+#pragma warning( disable : 4996 )   /* Shut up "This function or variable may be unsafe" */
+
+std::string HostApplicationDataDir() {
+    std::string result;
+    char env[MAX_PATH+1];
+    HRESULT status = SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, env);
+    if (status==S_OK) {
+        result = std::string(env) + "/Voromoeba";
+    } else {
+        HostWarning("SHGetFolderPathA(...CSIDL_COMMON_APPDATA...) failed");
+    }
+    HostWarning(("path:"+result+"\n").c_str());
+    return result;
 }
+
+#pragma warning( pop )
+
+#endif
