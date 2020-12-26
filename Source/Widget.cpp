@@ -196,7 +196,7 @@ DecimalNumeral::DecimalNumeral( unsigned value, bool zeroIsEmptyString ) {
 //-----------------------------------------------------------------
 
 DigitalMeter::DigitalMeter( int nDigit, int nDecimal ) :
-    Widget( "DigitalMeter" ),
+    Widget( "DigitalMeter.png" ),
     myValue(0),
     myNdigit(nDigit),
     myNdecimal(nDecimal)
@@ -231,47 +231,38 @@ void DigitalMeter::drawOn( NimblePixMap& map, int x, int y ) const {
 void InkOverlay::buildFrom(const NimblePixMap& map) {
     myWidth=map.width();
     myHeight=map.height();
-    const NimblePixel transparent = map.pixelAt(0, 0);
+    const NimblePixel transparent = map.pixelAt(0, 0) & rgbMask;
+
     // First pass counts number of runs; second pass remembers them.
     for (int pass=0; pass<2; ++pass) {
         size_t count = 0;
-        unsigned oldY = 0;
+        auto addElement = [pass,&count,this](elementType e) {
+            if (pass == 1)
+                myArray[count] = e;
+            ++count;
+        };
+        int32_t oldX = -1, oldY = -1;
         for (int y=0; y<map.height(); ++y)
-            for (int x=0; x<map.width(); ++x)
-                if (map.pixelAt(x, y)!=transparent) {
-                    // Vertical jump is more than max expressible by runType::dy.
-                    // Create empty runs to advance y position
-                    while (y-oldY > runType::dyMax) {
-                        if (pass==1) {
-                            runType* r = myArray+count;
-                            r->color = 0;   // Color not used
-                            r->x = 0;
-                            r->dy = runType::dyMax;
-                            r->len = 0;
-                        }
-                        oldY += runType::dyMax;
-                        ++count;
+            for (int x=0; x<map.width(); ++x) 
+                if ((map.pixelAt(x, y) & rgbMask) != transparent) {
+                    if (x != oldX || y != oldY) {
+                        addElement(elementType::makeStart(x,y));
+                        oldX = x;
+                        oldY = y;
                     }
                     // Start run at (x,y)
                     const NimblePixel* p = (NimblePixel*)map.at(x, y);
-                    NimblePixel c = map.pixelAt(x, y);
+                    const NimblePixel c = map.pixelAt(x, y) & rgbMask;
                     int len = 1;
-                    while (x+len<map.width() && p[len]==c)
+                    while (x+len<map.width() && len < 255 && (p[len]&rgbMask)==c)
                         ++len;
-                    if (pass==1) {
-                        runType* r = myArray+count;
-                        r->color = c;
-                        r->x = x;
-                        r->dy = y-oldY;
-                        r->len = len;
-                    }
+                    addElement(elementType::makeRun(c, len));
+                    oldX += len;
                     x += len-1;
-                    oldY = y;
-                    ++count;
                 }
         if (pass==0) {
             Assert(!myArray);
-            myArray = new runType[count];
+            myArray = new elementType[count];
             mySize = count;
         } else {
             Assert(mySize==count);
@@ -280,14 +271,15 @@ void InkOverlay::buildFrom(const NimblePixMap& map) {
 }
 
 void InkOverlay::drawOn(NimblePixMap& map, int left, int top) const {
-    const runType* end = myArray+mySize;
-    uint32_t y = 0;
-    for (const runType* r=myArray; r<end; ++r) {
-        y += r->dy;
-        NimblePixel* p = (NimblePixel*)map.at(left+r->x, top+y);
-        NimblePixel c = r->color;
-        for (uint32_t len=r->len; len>0; --len)
-            *p++ = c;
+    const elementType* end = myArray + mySize;
+    NimblePixel* p = nullptr;
+    for (const elementType* e=myArray; e<end; ++e) {
+        if (e->isStart()) {
+            p = (NimblePixel*)map.at(left + e->x(), top + e->y());
+        } else {
+            const NimblePixel c = e->color();
+            for (uint32_t len=e->len(); len>0; --len)
+                *p++ = c;
+        }
     }
 }
-

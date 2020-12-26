@@ -393,9 +393,6 @@
     <ClCompile Include="..\Host_sdl.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\..\Resource\resource.rc" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\..\..\Source\About.h" />
     <ClInclude Include="..\..\..\Source\Ant.h" />
     <ClInclude Include="..\..\..\Source\AssertLib.h" />

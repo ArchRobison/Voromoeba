@@ -118,8 +118,9 @@ public:
 //! A pixel
 //!
 //! Old versions of NimbleDraw supported 16-bit and 32-bit pixels.
-//! The current version supports only 32-bit pixels.
-typedef uint32_t NimblePixel;
+//! The current version supports only 32-bit pixels, with format ARGB.
+//! The A component is usually ignored.
+using NimblePixel = uint32_t;
 
 //! A device-independent color
 struct NimbleColor {

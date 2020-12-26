@@ -66,7 +66,7 @@ Ant* Photo::copyToAnts(Ant* a, const ViewTransform& transform) {
     return myBugs.copyToAnts(a, transform);
 }
 
-Photo TheAuthor("Author");
+Photo TheAuthor("Author.png");
 VoronoiText TheTitle;
 VoronoiText TheInfo;
 enum class RectIndex : int8_t { author, title, info };

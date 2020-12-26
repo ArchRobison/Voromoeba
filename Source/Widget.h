@@ -1,21 +1,21 @@
-/* Copyright 1996-2012 Arch D. Robison 
+/* Copyright 1996-2012 Arch D. Robison
 
-   Licensed under the Apache License, Version 2.0 (the "License"); 
-   you may not use this file except in compliance with the License. 
-   You may obtain a copy of the License at 
-   
-       http://www.apache.org/licenses/LICENSE-2.0 
-       
-   Unless required by applicable law or agreed to in writing, software 
-   distributed under the License is distributed on an "AS IS" BASIS, 
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-   See the License for the specific language governing permissions and 
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
    limitations under the License.
  */
 
-/******************************************************************************
- Various widgets for the screen
-*******************************************************************************/
+ /******************************************************************************
+  Various widgets for the screen
+ *******************************************************************************/
 
 #ifndef Widget_H
 #define Widget_H
@@ -102,7 +102,10 @@ public:
         myHeight(0) {
     }
     ~InkOverlay() { delete[] myArray; }
-    void drawOn(NimblePixMap& map, int top, int bottom) const;
+
+    //! Draw this InkOverlay, with upper left corner positioned at (left,top).
+    //! The InkOverlay must fit in the map.
+    void drawOn(NimblePixMap& map, int left, int top) const;
     int height() const {
         Assert(myWidth>=32);
         return myHeight;
@@ -117,19 +120,40 @@ protected:
 private:
     InkOverlay(const InkOverlay&) = delete;
     void operator=(const InkOverlay&) = delete;
+    static constexpr NimblePixel rgbMask = 0xFFFFFF;
 
     //! Describes horizontal run of pixels with same color.
-    struct runType {
-        static const unsigned dyMax = 255;
-        NimblePixel color;
-        //! x coordinate where run starts
-        uint32_t x:12;
-        //! delta for y coordinate relative to previous run
-        uint32_t dy:8;
+    class elementType {
+        //! Upper byte determines meaning.
+        //! 0 -> lower 24 bits are split into 12 bits each of (x,y) coordinate
+        //! nonzero -> lower 24 bits are RGB portion of NimblePixel, upper 8 bits are run length.
+        uint32_t bits;
+        explicit elementType(uint32_t bits_) : bits(bits_) {}
+    public:
+        elementType() = default;\
+        //! True if element defines (x,y) start coordinate, false if element defines a run.
+        bool isStart() const { return len() == 0; }
+        //! Color of a run
+        NimblePixel color() const { return bits & rgbMask; }
         //! Length of run
-        uint32_t len:12;
+        uint32_t len() const { return bits >> 24; }
+
+        uint32_t x() const { return bits & 0xFFF; }
+        uint32_t y() const { return bits >> 12 & 0xFFF; }
+
+        static elementType makeStart(uint32_t x, uint32_t y) {
+            Assert(x < 0x1000);
+            Assert(y < 0x1000);
+            return elementType(y << 12 | x);
+        }
+
+        static elementType makeRun(NimblePixel color, uint32_t len) {
+            Assert(0 < len);
+            Assert(len < 0x100);
+            return elementType(color & 0xFFFFFF | len << 24);
+        }
     };
-    runType* myArray;
+    elementType* myArray;
     //! Number of elements in myArray
     size_t mySize;
     //! Dimensions of the overlay in pixels.

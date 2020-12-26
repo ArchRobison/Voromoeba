@@ -24,7 +24,7 @@
 const int DISPLAY_WIDTH_MIN = 1024;
 
 //! Minimum display height
-const int DISPLAY_HEIGHT_MIN = 600;
+const int DISPLAY_HEIGHT_MIN = 768;
 
 //! True if wizard mode allowed
 #ifndef WIZARD_ALLOWED

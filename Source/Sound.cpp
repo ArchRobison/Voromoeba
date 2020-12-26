@@ -291,9 +291,9 @@ void ResourceSound::buildFrom(const char* data, size_t size) {
     readFromMemory(data, size);
 }
 
-static ResourceSound SquishSound("Squish");
-static ResourceSound SmoochSound("Smooch");
-static ResourceSound YumSound("Yum");
+static ResourceSound SquishSound("Squish.wav");
+static ResourceSound SmoochSound("Smooch.wav");
+static ResourceSound YumSound("Yum.wav");
 
 void ConstructSounds() {
     size_t n = Synthesizer::SampleRate;

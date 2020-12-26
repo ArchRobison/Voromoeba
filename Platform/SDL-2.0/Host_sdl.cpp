@@ -15,6 +15,7 @@ limitations under the License.
 
 #include "SDL.h"
 #include "SDL_image.h"
+#include "Config.h"
 #include "Host.h"
 #include "Game.h"
 #include "BuiltFromResource.h"
@@ -47,7 +48,7 @@ static void ReportResourceError(const char* routine, const char* resourceName, c
     HostExit();
 }
 
-std::string GetResourcePath(const BuiltFromResource& item, const char* suffix) {
+std::string GetResourcePath(const BuiltFromResource& item) {
 #if defined(HOST_RESOURCE_PATH)
     static std::string path(HOST_RESOURCE_PATH);
 #else
@@ -58,7 +59,7 @@ std::string GetResourcePath(const BuiltFromResource& item, const char* suffix) {
         path = "Resource/";
         FILE* f;
         for (int i = 0; i < 8; ++i) {
-            f = fopen((path + item.resourceName() + suffix).c_str(), "rb");
+            f = fopen((path + item.resourceName()).c_str(), "rb");
             if (f)
                 break;
             path = "../" + path;
@@ -71,13 +72,13 @@ std::string GetResourcePath(const BuiltFromResource& item, const char* suffix) {
         fclose(f);
     }
 #endif
-    return path + "/" + item.resourceName() + suffix;
+    return path + "/" + item.resourceName();
 }
 
 } // (anonymous)
 
 void HostLoadResource(BuiltFromResourcePixMap& item) {
-    const auto path = GetResourcePath(item, ".png");
+    const auto path = GetResourcePath(item);
     if (SDL_Surface* raw = IMG_Load(path.c_str())) {
         if (SDL_Surface* image = SDL_ConvertSurface(raw, ScreenFormat, 0)) {
             SDL_FreeSurface(raw);
@@ -105,7 +106,7 @@ void HostLoadResource(BuiltFromResourcePixMap& item) {
 }
 
 void HostLoadResource(BuiltFromResourceWaveform& item) {
-    const auto path = GetResourcePath(item, ".wav");
+    const auto path = GetResourcePath(item);
     FILE* f = std::fopen(path.c_str(), "rb");
     if (!f) {
         fprintf(LogFile, "Cannot open %s\n", path.c_str());
@@ -298,8 +299,8 @@ int main(int argc, char* argv[]) {
     int w = displayMode.w;
     int h = displayMode.h;
 #if !EXCLUSIVE_MODE
-    w = 1024;
-    h = 600;
+    w = DISPLAY_WIDTH_MIN;
+    h = DISPLAY_HEIGHT_MIN;
 #endif
     SDL_Window* window = SDL_CreateWindow(
         GameTitle(),

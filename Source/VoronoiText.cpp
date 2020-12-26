@@ -49,7 +49,7 @@ void VoronoiFont::buildFrom(const NimblePixMap& map) {
     }
 }
 
-VoronoiFont TheVoronoiFont("VoronoiFont");
+VoronoiFont TheVoronoiFont("VoronoiFont.png");
 
 static ColorStream DefaultBackground, DefaultForeground;
 
