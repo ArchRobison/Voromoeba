@@ -88,13 +88,12 @@ inline bool IsKeyDown(int key0, int key1) {
 }
 
 static void UpdateView(NimblePixMap& screen, float dt) {
-    const float Pi = 3.1415926535f;
     float torque = 0;
     if (IsKeyDown(HOST_KEY_RIGHT, 'd')) {
-        torque = -Pi/5;
+        torque = -Pi<float>/5;
     }
     if (IsKeyDown(HOST_KEY_LEFT, 'a')) {
-        torque += Pi/5;
+        torque += Pi<float>/5;
     }
     float forward = 0;
     if (IsKeyDown(HOST_KEY_UP, 'w')) {

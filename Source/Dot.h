@@ -1,4 +1,4 @@
-/* Copyright 2011-2020 Arch D. Robison
+/* Copyright 2020 Arch D. Robison
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -13,23 +13,19 @@
    limitations under the License.
  */
 
-#include "Color.h"
+#ifndef Dot_H
+#define Dot_H
 
-float ColorWobble::omega;
+#include "Forward.h"
 
-void ColorGradient::initialize(const NimblePixMap& window, NimbleColor c0, NimbleColor c1) {
-    Assert(size>1);
-    for (size_t k=0; k<size; ++k) {
-        NimbleColor c2 = c0;
-        c2.mix(c1, float(k)/(size-1));
-        color[k] = window.pixel(c2);
-    }
-}
+//! Module for drawing generator points for a Voronoi diagram,
+//! with different shapes for different kinds of points.
+class Dot {
+public:
+    static void initialize(const NimblePixMap& map);
 
-void ColorWobble::updateTime(float dt) {
-    constexpr uint32_t scale = 1u<<24;
-    static uint32_t time;
-    time += dt*scale;
-    // Convert to 2pi periodicity
-    omega = (Pi<float>/(1u<<31))*time;
-}
+    //! Draw dots for ants in given pond.
+    static void draw(NimblePixMap& window, const Pond& p);
+};
+
+#endif /* Dot_H */

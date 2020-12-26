@@ -16,6 +16,7 @@
 #ifndef Outline_H
 #define Outline_H
 
+#include "AssertLib.h"
 #include "NimbleDraw.h"
 #include <cstdint>
 
@@ -94,7 +95,7 @@ private:
 public:
     static const int lineWidth = 5;
     static idType newId() {
-        Assert(idCount+1<nIdMax);
+        Assert(idCount+1 < nIdMax);
         return static_cast<idType>(++idCount);
     }
     static void start() {

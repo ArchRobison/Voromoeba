@@ -36,10 +36,9 @@ static ColorStream SelectedColor, * OldColor;
 
 void Splash::update(float dt, float deltaTheta) {
     Theta += deltaTheta;
-    float pi = 3.1415926535;
     SplashViewTransform.setRotation(Theta);
-    float omega = pi/(N_Button-1);
-    int j = Round((Theta+2*pi)/omega) % (2*(N_Button-1));
+    float omega =Pi<float>/(N_Button-1);
+    int j = Round((Theta+2*Pi<float>)/omega) % (2*(N_Button-1));
     Assert(0<=j && j<2*(N_Button-1));
     int k = j&1 ? -1 : j/2;
     if (k!=SelectedButtonIndex) {
@@ -79,8 +78,7 @@ void Splash::doSelectedAction() {
 
 void Splash::initialize(NimblePixMap& window) {
     SelectedColor.initialize(window, NimbleColor(255, 0, 0), NimbleColor(255, 0, 255));
-    float pi = 3.1415926545;
-    float omega = 2*pi/(N_Button-1);
+    float omega = 2*Pi<float>/(N_Button-1);
     float radius = Min(window.width(), window.height())*0.4f;
     float buttonArea = 0;
     for (size_t k=0; k<N_Button; ++k) {
@@ -88,7 +86,7 @@ void Splash::initialize(NimblePixMap& window) {
             OldColor = &ButtonText[0].bindForegroundPalette(SelectedColor);
         }
         ButtonText[k].initialize(ButtonName[k]);
-        Point center = k==N_Button-1 ? Point(0, 0) : Polar(radius, -0.5*pi - k*omega);
+        Point center = k==N_Button-1 ? Point(0, 0) : Polar(radius, -0.5*Pi<float> - k*omega);
         float textRadius = std::sqrt(Dist2(ButtonText[k].width(), ButtonText[k].height()))/2;
         ButtonCircle[k] = Circle(center, textRadius);
         buttonArea += ButtonCircle[k].area();

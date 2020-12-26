@@ -16,7 +16,10 @@
 #include "Background.h"
 #include "Bridge.h"
 #include "Config.h"
+#include "Dot.h"
 #include "Finale.h"
+#include "Neighborhood.h"
+#include "Outline.h"
 #include "Pond.h"
 #include "Missile.h"
 #include "Region.h"
@@ -24,8 +27,6 @@
 #include "Utility.h"
 #include "Sound.h"
 #include "World.h"
-#include "Neighborhood.h"
-#include "Outline.h"
 #include "Voronoi.h"
 #include "VoronoiText.h"
 #include "Splash.h"
@@ -183,6 +184,8 @@ void World::initialize(NimblePixMap& window) {
     Self.initialize(window);
     Missiles::initialize(window);
 
+    Dot::initialize(window);
+
     // Choose where oranges will go (uniform distribution across first 7 ponds)
     int8_t numOrange[N_POND_MAX] = {};
     constexpr uint32_t totalNumOrange = 5;
@@ -284,8 +287,7 @@ void World::draw(NimblePixMap& window) {
     }
     for (size_t k=0; k<NumPond; ++k)
         if (PondSet[k].isDark()) {
-            extern void DrawDots(NimblePixMap& window, const Pond& p);
-            DrawDots(window, PondSet[k]);
+            Dot::draw(window, PondSet[k]);
         }
 
     CompoundRegion background;
@@ -303,8 +305,6 @@ void World::updatePonds(float dt) {
         }
     }
 }
-
-static const float Pi = 3.14159265f;
 
 //! Advance position of "self" or "missile" by time dt.
 void World::updateDrivenBeetle(Beetle& b, float dt) {

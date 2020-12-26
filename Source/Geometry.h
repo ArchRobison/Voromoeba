@@ -302,7 +302,7 @@ public:
     float radius() const { return myRadius; }
     float radiusSquared() const { return myRadiusSquared; }
     //! Area of the circle
-    float area() const { return 3.1415926535f*myRadiusSquared; }
+    float area() const { return Pi<float>*myRadiusSquared; }
     //! True if circle contains point p
     bool contains(Point p) const {
         return Dist2(p, myCenter)<=myRadiusSquared;

@@ -79,9 +79,12 @@ uint32_t RandomUInt(uint32_t a);
 //! Return random real in [0,a)
 float RandomFloat(float a);
 
+template<typename T>
+constexpr T Pi = static_cast<T>(3.141592653589793);
+
 //! Return random angle
 inline float RandomAngle() { 
-    return RandomFloat(2*3.1415926535f); 
+    return RandomFloat(2*Pi<float>); 
 }
 
 //! Base class for non-copiable non-assignable classes

@@ -392,7 +392,6 @@ std::string HostApplicationDataDir() {
     } else {
         HostWarning("SHGetFolderPathA(...CSIDL_COMMON_APPDATA...) failed");
     }
-    HostWarning(("path:"+result+"\n").c_str());
     return result;
 }
 

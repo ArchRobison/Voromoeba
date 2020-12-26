@@ -406,6 +406,7 @@
     <ClInclude Include="..\..\..\Source\BuiltFromResource.h" />
     <ClInclude Include="..\..\..\Source\Color.h" />
     <ClInclude Include="..\..\..\Source\Config.h" />
+    <ClInclude Include="..\..\..\Source\Dot.h" />
     <ClInclude Include="..\..\..\Source\Enum.h" />
     <ClInclude Include="..\..\..\Source\Finale.h" />
     <ClInclude Include="..\..\..\Source\Forward.h" />

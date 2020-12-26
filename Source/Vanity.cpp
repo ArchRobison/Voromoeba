@@ -86,10 +86,8 @@ void VanityBoardData::readFromFile() {
     if (!okay) {
         // Board has been corrupted.  Clear it.
         std::memset(this, 0, sizeof(*this));
-#if 1
         // Use to create initial file to be distributed in package.
         writeToFile();
-#endif
     }
 }
 

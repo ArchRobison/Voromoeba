@@ -88,7 +88,7 @@ void SelfType::update( float dt, float forward, float torque ) {
 float SelfType::tipseyScale() const {
     if( tipseyTime<TipseyTimeMax ) 
         //! Adjust scale for tipseyness after being hit
-        return 1+0.5f*std::sin(2*3.1415926535f*tipseyTime)*std::exp(-tipseyTime*tipseyTime);
+        return 1+0.5f*std::sin(2*Pi<float>*tipseyTime)*std::exp(-tipseyTime*tipseyTime);
     else 
         return 1;
 }

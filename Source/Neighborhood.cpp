@@ -77,7 +77,7 @@ void Neighborhood::merge() {
 void Neighborhood::start() {
     for (int k=0; k<3; ++k) {
         static const float huge = 1E6;
-        Point p = Polar(huge, k*(2*3.141592f/3));
+        Point p = Polar(huge, k*(2*Pi<float>/3));
         mySortedBegin[k].assign(p, PseudoAngle(p.x, p.y), Neighbor::ghostIndex);
         Assert(k==0 || mySortedBegin[k].alpha > mySortedBegin[k-1].alpha);
     }

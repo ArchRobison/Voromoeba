@@ -169,7 +169,7 @@ Ant* VoronoiText::copyToAnts(Ant* a, Point upperLeft, float scale) {
     // Assertion checks that method initialize() was called.
     Assert(myColor);
     const double fundamentalPeriod = 90; // Units = seconds
-    float omega = fmod(HostClockTime(), fundamentalPeriod)*(2*3.1415926535/fundamentalPeriod);
+    float omega = fmod(HostClockTime(), fundamentalPeriod)*(2*Pi<double>/fundamentalPeriod);
     for (int i=0; i<myHeight; ++i)
         for (int j=0; j<myWidth; ++j) {
             int dx = j*VoronoiChar::width;
