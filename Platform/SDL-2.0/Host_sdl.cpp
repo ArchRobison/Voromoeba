@@ -202,8 +202,7 @@ void PollEvents() {
             /* Pass the event data onto PrintKeyInfo() */
             case SDL_KEYDOWN:
                 /*case SDL_KEYUP:*/
-                if (const int key = HostKeyFromScanCode[event.key.keysym.scancode])
-                {
+                if (const int key = HostKeyFromScanCode[event.key.keysym.scancode]) {
                     GameKeyDown(HostKeyFromScanCode[event.key.keysym.scancode]);
                 }
                 break;
@@ -276,6 +275,38 @@ bool RebuildRendererAndTexture(SDL_Window* window, int w, int h, SDL_Renderer*& 
     return true;
 }
 
+//! Choose which display to use.
+int ChooseDisplay(SDL_Rect& rect) {
+    const int numDisplays = SDL_GetNumVideoDisplays();
+    if (numDisplays < 1) {
+        fprintf(LogFile, "Internal error: SDL_GetNumVideoDisplays failed: %s\n", SDL_GetError());
+        fflush(LogFile);
+        exit(1);
+    }
+    std::vector<SDL_Rect> displayBounds(numDisplays);
+    for (int i = 0; i < numDisplays; ++i) {
+        if (SDL_GetDisplayBounds(i, &displayBounds[i]))
+            fprintf(LogFile, "Internal error: SDL_GetDisplayBounds(%d,...) failed: %s\n", i, SDL_GetError());
+    }
+    int displayIndex = 0;
+#if EXCLUSIVE_MODE
+    if (numDisplays > 1) {
+        printf("%d monitors detected:\n", numDisplays);
+        for (int i = 0; i < numDisplays; ++i)
+            printf("    %d: %d x %d\n", i, displayBounds[i].w, displayBounds[i].h);
+        for (;;) {
+            printf("Choose display # from 0..%d:\n", numDisplays - 1);
+            scanf("%d", &displayIndex);
+            if (0 <= displayIndex && displayIndex < numDisplays)
+                break;
+            printf("Display %d is not a valid choice\n", displayIndex);
+        }
+    }
+#endif
+    rect = displayBounds[displayIndex];
+    return displayIndex;
+}
+
 } // (anonymous)
 
 int main(int argc, char* argv[]) {
@@ -290,22 +321,34 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
     atexit(SDL_Quit);
+    SDL_Rect displayBounds;
+    const int displayIndex = ChooseDisplay(displayBounds);
+
     SDL_DisplayMode displayMode;
-    if (SDL_GetCurrentDisplayMode(0, &displayMode)) {
+    if (SDL_GetCurrentDisplayMode(displayIndex, &displayMode)) {
         fprintf(LogFile, "Internal error: SDL_GetCurrentDisplayMode failed: %s\n", SDL_GetError());
         fflush(LogFile);
         exit(1);
     }
-    int w = displayMode.w;
-    int h = displayMode.h;
-#if !EXCLUSIVE_MODE
+
+    int x, y, w, h;
+
+#if EXCLUSIVE_MODE
+    x = displayBounds.x;
+    y = displayBounds.y;
+    w = displayBounds.w;
+    h = displayBounds.h;
+
+#else
     w = DISPLAY_WIDTH_MIN;
     h = DISPLAY_HEIGHT_MIN;
+    x = SDL_WINDOWPOS_UNDEFINED;
+    y = SDL_WINDOWPOS_UNDEFINED;
 #endif
     SDL_Window* window = SDL_CreateWindow(
         GameTitle(),
-        SDL_WINDOWPOS_UNDEFINED,    // initial x position
-        SDL_WINDOWPOS_UNDEFINED,    // initial y position
+        x,    // initial x position
+        y,    // initial y position
         w,
         h,
 #if EXCLUSIVE_MODE

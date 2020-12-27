@@ -33,6 +33,7 @@
 #include "Widget.h"
 #include "World.h"
 
+#include <cctype>
 #include <cstdlib>
 #include <cmath>
 #include <algorithm>
@@ -169,19 +170,19 @@ static void Draw(NimblePixMap& screen) {
             TheScoreMeter.drawOn(screen, 0, screen.height()-TheScoreMeter.height());
             break;
         }
-        case ShowKind::vanity: 
+        case ShowKind::vanity:
             TheVanityBoard.draw(screen);
             break;
- 
+
         case ShowKind::splash:
             Splash::draw(screen);
             break;
 
-        case ShowKind::about: 
+        case ShowKind::about:
             About::draw(screen);
             break;
 
-        case ShowKind::help: 
+        case ShowKind::help:
             Help::draw(screen);
             break;
     }
