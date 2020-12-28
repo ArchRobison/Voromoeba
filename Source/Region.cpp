@@ -348,6 +348,7 @@ void CompoundRegion::buildComplement(const CompoundRegion* first, const Compound
         if (r->bottom() > bottom)
             bottom = r->bottom();
     }
+
     myVec.resize(RegionClipBox.top, RegionClipBox.bottom);
     RegionSegment all;
     all.assign(RegionClipBox.left, RegionClipBox.right);

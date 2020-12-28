@@ -16,11 +16,15 @@
 #include "Neighborhood.h"
 #include <algorithm>
 
+namespace {
+
 inline bool ClockwiseOrInCircle(const Neighbor* a, const Neighbor* b, const Neighbor* c) {
     Assert(Cross(*a, *b)>=0);
     Assert(Cross(*b, *c)>=0);
     return Cross(*a, *c)<=0 || InCircle(*a, *b, *c);
 }
+
+} // (anonymous)
 
 inline void Neighborhood::setEnd(Neighbor* s) {
     mySortedEnd = myExtraEnd = s;
@@ -32,14 +36,14 @@ Neighborhood::Neighborhood(Neighbor buffer[], size_t bufSize) :
     mySortedBegin(buffer),
     myPhysicalEnd(buffer+bufSize) {
     Assert(bufSize>=4);
-    mySortedEnd = NULL;
-    myExtraEnd = NULL;
-    myExtraLimit = NULL;
+    mySortedEnd = nullptr;
+    myExtraEnd = nullptr;
+    myExtraLimit = nullptr;
 }
 
 bool Neighborhood::tentativeAccept(const Neighbor& x) const {
-    Neighbor* s1 = std::upper_bound(mySortedBegin, mySortedEnd, x);
-    Neighbor* s0 = s1==mySortedBegin ? mySortedEnd-1 : s1-1;
+    const Neighbor* s1 = std::upper_bound(mySortedBegin, mySortedEnd, x);
+    const Neighbor* s0 = s1==mySortedBegin ? mySortedEnd-1 : s1-1;
     if (s1==mySortedEnd)
         s1 = mySortedBegin;
     return InCircle(*s0, x, *s1);
@@ -75,9 +79,10 @@ void Neighborhood::merge() {
 }
 
 void Neighborhood::start() {
+    // Initialize buffer with huge triangle surrounding the origin.
     for (int k=0; k<3; ++k) {
-        static const float huge = 1E6;
-        Point p = Polar(huge, k*(2*Pi<float>/3));
+        static constexpr float huge = 1E6;
+        const Point p = Polar(huge, k*(2*Pi<float>/3));
         mySortedBegin[k].assign(p, PseudoAngle(p.x, p.y), Neighbor::ghostIndex);
         Assert(k==0 || mySortedBegin[k].alpha > mySortedBegin[k-1].alpha);
     }

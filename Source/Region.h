@@ -85,7 +85,7 @@ public:
 private:
     int myTop;
     int myBottom;
-    //! Storage is allocated.
+    //! Storage.
     T myArray[Outline::lineWidth+MAX_STRIPE_HEIGHT+InclusiveBottom];
 };
 
@@ -101,11 +101,16 @@ public:
     const RegionSegment& operator[](int y) const { return myVec[y]; }
     bool isPositive() const { return myIsPositive; }
     void setIsPositive(bool value) { myIsPositive=value; }
+
+    //! Make rectangular region.
     void makeRectangle(Point upperLeft, Point lowerRight);
+
     //! Make circular region with given center and radius
     void makeCircle(Point center, float radius);
+
     //! Make parallelogram with given center and two adjacent corners p and q
     void makeParallelogram(Point center, Point p, Point q);
+
     //! Make ellipse with given center, extremum point p, and width
     void makeEllipse(Point center, Point p, float halfWidth);
 private:

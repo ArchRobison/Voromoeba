@@ -22,6 +22,8 @@
 #include "Voronoi.h"
 #include "Outline.h"
 
+namespace {
+
 class WalkByY {
     Ant* myL;
     Ant* myU;
@@ -128,7 +130,6 @@ struct VoronoiSegment : public Ant {
             outlineId = Outline::idType::null;
     }
 };
-
 
 #define STATISTICS 0
 
@@ -631,12 +632,15 @@ void VoronoiRasterizer::advanceLive() {
     Assert(assertLiveIsOkay());
 }
 
+} // (anonymous)
+
+//! Draw Voronoi diagram on the given window within the given region, using Ants in [antFirst,antLast).
 void DrawVoronoi(NimblePixMap& window, const CompoundRegion& region, Ant* antFirst, Ant* antLast) {
     Assert(antFirst+3<=antLast); // Must have at least two bookends and one ant
-    Assert(antLast-antFirst<=N_ANT_MAX+2);
-    Assert(antFirst[0].y==-AntInfinity);
-    Assert(antLast[-1].y==AntInfinity);
-    Assert(region.bottom()<=window.height()+region.lineWidth);
+    Assert(antLast-antFirst <= N_ANT_MAX+2);
+    Assert(antFirst[0].y == -AntInfinity);
+    Assert(antLast[-1].y == AntInfinity);
+    Assert(region.bottom() <= window.height()+region.lineWidth);
     Assert(region.assertOkay());
 #if ASSERTIONS
     for (Ant* a = antFirst+1; a<antLast-1; ++a) {
