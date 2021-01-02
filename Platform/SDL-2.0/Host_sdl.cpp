@@ -1,4 +1,4 @@
-/* Copyright 2014-2020 Arch D. Robison
+/* Copyright 2014-2021 Arch D. Robison
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,10 +15,11 @@ limitations under the License.
 
 #include "SDL.h"
 #include "SDL_image.h"
+#include "BuiltFromResource.h"
 #include "Config.h"
 #include "Host.h"
 #include "Game.h"
-#include "BuiltFromResource.h"
+
 #include <cstdio>
 #include <cstdlib>
 #include <string>
@@ -28,6 +29,10 @@ limitations under the License.
 #endif
 
 #define LOGFILE 1
+
+#if _MSC_VER >= 1920
+#pragma warning(disable : 4996)
+#endif
 
 namespace {
 

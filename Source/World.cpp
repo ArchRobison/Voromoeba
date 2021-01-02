@@ -1,4 +1,4 @@
-/* Copyright 2011-2020 Arch D. Robison
+/* Copyright 2011-2021 Arch D. Robison
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -40,9 +40,8 @@ float ZoomFactor = 1;
 const size_t N_POND_MAX = 10;
 
 static Pond PondSet[N_POND_MAX];
-static Point PondCenter[N_POND_MAX];
 static Bridge BridgeSet[N_POND_MAX];
-static Background PondBackground;
+static Background Land;
 
 } // (anonymous)
 
@@ -98,29 +97,41 @@ void OpenOrCloseBridgeIfReady(size_t k) {
     }
 }
 
-//! Recursive routine that fills in PondSet[k..NumPond)
+//! Recursive routine that chooses radius and center of PondSet[k..NumPond)
+//! It's recursive because it sometimes has to backtrack. 
 bool InitializeGeometry(size_t k, float meanRadius) {
     Assert(k<NumPond);
     for (int trial=0; trial<4; ++trial) {
-        float r = meanRadius*(0.9f+RandomFloat(0.2f));
+        // Choose random radius
+        const float r = meanRadius * (0.9f+RandomFloat(0.2f));
+
+        // Choose center of pond.
         Point c;
         if (k==0) {
+            // First pond is always at (0,0)
             c = Point(0, 0);
         } else {
             // Choose random angle
-            float theta = RandomAngle();
-            float d = (r+PondSet[k-1].radius())*NeighborSeparation;
+            const float theta = RandomAngle();
+            const float d = (r+PondSet[k-1].radius()) * NeighborSeparation;
             c = PondSet[k-1].center()+Polar(d, theta);
         }
+
+        // Set center and radius of pond
         static_cast<Circle&>(PondSet[k]) = Circle(c, r);
-        for (size_t j=0; j+1<k; ++j) {
-            float d1 = Distance(PondSet[j].center(), PondSet[k].center());
-            float d2 = PondSet[j].radius()+PondSet[k].radius();
-            if (d1<d2*OtherSeparation)
+
+        // Check that other preceding ponds have sufficient gap.
+        for (size_t j=0; j+1 < k; ++j) {
+            const float d1 = Distance(PondSet[j].center(), c);
+            const float d2 = PondSet[j].radius() + r;
+            if (d1 < d2*OtherSeparation)
                 goto nextTrial;
         }
+
         if (k+1==NumPond)
             return true;
+
+        // Try to fill in rest of ponds
         if (InitializeGeometry(k+1, meanRadius))
             return true;
 nextTrial:;
@@ -128,40 +139,44 @@ nextTrial:;
     return false;
 }
 
-//! Adjust background beetles so that their Voronoi boundaries bisect the bridges
-void AdjustBackground() {
-    // Iterative numerical relaxation.
-    for (int i=0; i<20; ++i) {
+//! Adjust land beetles so that their Voronoi boundaries bisect the bridges.
+//! If the ponds were all the same diameter, no adjustment would be necessary. 
+void AdjustLand() {
+    // Use iterative numerical relaxation.
+    for (int iteration=0; iteration<20; ++iteration) {
         Point delta[N_POND_MAX];
         for (size_t k=0; k<NumPond; ++k)
             delta[k] = Point(0, 0);
         for (size_t k=0; k+1<NumPond; ++k) {
-            Point m = 0.5f*(PondBackground[k].pos+PondBackground[k+1].pos);
-            Point residue = BridgeSet[k].center()-m;
+            // Compute where Voronoi boundary is.
+            const Point m = 0.5f * (Land[k].pos + Land[k+1].pos);
+            // Compute adjustment required for the two positions
+            Point residue = BridgeSet[k].center() - m;
             delta[k] += residue;
             delta[k+1] += residue;
         }
         for (size_t k=0; k<NumPond; ++k)
-            PondBackground[k].pos += 0.8f*delta[k];
+            Land[k].pos += 0.8f*delta[k];
     }
 }
 
-void InitializeBackground(NimblePixMap& window) {
-    NimbleColor brown[2] ={ NimbleColor(64,32,0), NimbleColor(224,112,0) };
+void InitializeLand(NimblePixMap& window) {
+    const NimbleColor darkBrown = NimbleColor(64, 32, 0);
+    const NimbleColor lightBrown = NimbleColor(224, 112, 0);
 
     // Initialize background
-    PondBackground.reserve(NumPond);
+    Land.reserve(NumPond);
     for (size_t k=0; k<NumPond; ++k) {
-        PondBackground[k].pos = PondSet[k].center();
+        Land[k].pos = PondSet[k].center();
         float frac = k*1618%1000*.001f; // Fibonacci hash
-        NimbleColor tmp(brown[0]);
-        tmp.mix(brown[1], frac);
-        PondBackground[k].color = window.pixel(tmp);
+        NimbleColor tmp(darkBrown);
+        tmp.mix(lightBrown, frac);
+        Land[k].color = window.pixel(tmp);
     }
-    PondBackground.resize(NumPond);
+    Land.resize(NumPond);
 
     // Adjustbackgound
-    AdjustBackground();
+    AdjustLand();
 }
 
 } //(anonymous)
@@ -187,7 +202,7 @@ void World::initialize(NimblePixMap& window) {
     Dot::initialize(window);
 
     // Choose where oranges will go (uniform distribution across first 7 ponds)
-    int8_t numOrange[N_POND_MAX] = {};
+    int8_t numOrange[N_POND_MAX] ={};
     constexpr uint32_t totalNumOrange = 5;
     for (size_t i=0; i<totalNumOrange; ++i)
         numOrange[RandomUInt(7)]++;
@@ -210,7 +225,7 @@ void World::initialize(NimblePixMap& window) {
     updateSelfAndMissiles(window, 0, 0, 0);
 
     // Initialize the background
-    InitializeBackground(window);
+    InitializeLand(window);
 
     // Initialize the score area
     TheScoreMeter.initialize(window);
@@ -222,7 +237,7 @@ namespace {
 void DrawBackground(NimblePixMap& window, CompoundRegion& region) {
     if (!region.empty()) {
         Ant* a = Ant::openBuffer();
-        a = PondBackground.copyToAnts(a, World::viewTransform);
+        a = Land.copyToAnts(a, World::viewTransform);
         Ant::closeBufferAndDraw(window, region, a, false);
     }
 }
@@ -252,8 +267,8 @@ void World::draw(NimblePixMap& window) {
     // Blank out background 
     window.draw(NimbleRect(0, 0, window.width(), window.height()), 0xFFFFFF);
 #endif
-    // "*4" accounts for one bridge per pond
-    // Each bridge requires one positive shape and two negative shapes.
+    // "*4" accounts for the pond circle and one bridge per pond,
+    // where each bridge requires one positive shape and two negative shapes.
     static ConvexRegion RegionStorage[N_POND_MAX*4];
     static CompoundRegion CompoundRegionStorage[N_POND_MAX];
 
@@ -264,15 +279,15 @@ void World::draw(NimblePixMap& window) {
     ConvexRegion* rLast=rFirst;
     SetRegionClip(0, 0, window.width(), window.height(), Outline::lineWidth);
     for (size_t start=0; start<NumPond; start=k) {
-        // Find contiguous sequence of ponds
+        // Find contiguous sequence of connected ponds
         for (k=start; k<NumPond; ) {
             const Pond& p = PondSet[k];
-            Point c = viewTransform.transform(p.center());
+            const Point c = viewTransform.transform(p.center());
             rLast->makeCircle(c, viewTransform.scale(p.radius()));
-            if (!rLast->empty()) {
+            if (!rLast->empty())
                 ++rLast;
-            }
-            if (BridgeSet[k++].isClosed()) break;
+            if (BridgeSet[k++].isClosed())
+                break;
             Assert(k<NumPond);
             rLast = BridgeSet[k-1].pushVisibleRegions(rLast);
         }
@@ -285,12 +300,13 @@ void World::draw(NimblePixMap& window) {
             ++cLast;
         }
     }
-    for (size_t k=0; k<NumPond; ++k)
-        if (PondSet[k].isDark()) {
-            Dot::draw(window, PondSet[k]);
-        }
 
-    CompoundRegion background;
+    // For dark ponds, draw dots.
+    for (size_t k=0; k<NumPond; ++k)
+        if (PondSet[k].isDark())
+            Dot::draw(window, PondSet[k]);
+
+    static CompoundRegion background;
     background.buildComplement(cFirst, cLast);
     DrawBackground(window, background);
 }

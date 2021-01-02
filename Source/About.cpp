@@ -1,4 +1,4 @@
-/* Copyright 2011-2020 Arch D. Robison
+/* Copyright 2011-2021 Arch D. Robison
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ void About::initialize(NimblePixMap& window) {
     TheAuthor.initialize();
     TheTitle.initialize(
         "Voromoeba 1.2      \n"
-        "Copyright 2011-2020\n"
+        "Copyright 2011-2021\n"
         "Arch D. Robison    ");
     TheInfo.initialize(
         "See http://www.blonzonics.us/games\n"

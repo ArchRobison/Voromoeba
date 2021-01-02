@@ -1,4 +1,4 @@
-/* Copyright 2011-2020 Arch D. Robison
+/* Copyright 2011-2021 Arch D. Robison
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -117,12 +117,14 @@ static void UpdateView(NimblePixMap& screen, float dt) {
 }
 
 static void Update(NimblePixMap& screen) {
-    static double T0;
-    double t1 = HostClockTime();
-    float dt = t1-T0;
-    T0 = t1;
+    // Get elapsed time. Return early if first call.
+    static double t0 = 0.0;
+    const double t1 = HostClockTime();
+    const float dt = t1-t0;
+    t0 = t1;
     if (dt==t1)
         return;
+
     if (ShowWhat==ShowKind::ponds) {
     } else {
         // Update slush sounds, otherwise they can be stuck on until the ponds view is shown again.
@@ -141,18 +143,24 @@ static void Update(NimblePixMap& screen) {
     }
 }
 
-static bool ShowCharacterSet = false;
-
 static DigitalMeter FrameRateMeter(5, 1);
 static bool ShowFrameRate;
 
+// Should be called once per frame.
 static float EstimateFrameRate() {
-    static double t0;
-    static int count;
-    static double estimate;
+    // Timestamp when previous estimate was computed.
+    static double t0 = 0.0;
+
+    // Number of frames since previous estimate
+    static uint32_t count = 0;
     ++count;
-    double t1 = HostClockTime();
-    if (t1-t0>=1.0) {
+
+    // Previous estimate
+    static double estimate;
+
+    const double t1 = HostClockTime();
+    if (t1-t0 >= 1.0) {
+        // At least one second has passed since previous estimate. Update the estimate.
         estimate = count/(t1-t0);
         t0 = t1;
         count = 0;
@@ -164,8 +172,7 @@ static void Draw(NimblePixMap& screen) {
     Ant::clearBuffer();
     switch (ShowWhat) {
         case ShowKind::ponds: {
-            extern VoronoiMeter TheScoreMeter;
-            ShowAnts &= TheScoreMeter.score()<20;
+            ShowAnts &= TheScoreMeter.score() < 20;
             World::draw(screen);
             TheScoreMeter.drawOn(screen, 0, screen.height()-TheScoreMeter.height());
             break;
@@ -186,13 +193,14 @@ static void Draw(NimblePixMap& screen) {
             Help::draw(screen);
             break;
     }
+    const float frameRate = EstimateFrameRate();
     if (ShowFrameRate) {
-        FrameRateMeter.setValue(EstimateFrameRate());
+        FrameRateMeter.setValue(frameRate);
         FrameRateMeter.drawOn(screen, 0, 0);
     }
 }
 
-static bool InitWorldFlag =false;
+static bool InitWorldFlag = false;
 
 void GameUpdateDraw(NimblePixMap& screen, NimbleRequest request) {
     if (InitWorldFlag) {
@@ -428,7 +436,7 @@ void ConvertAccumulatorToSamples(float dst[], Accumulator& src, uint32_t n) {
 void GameGetSoundSamples(float* samples, uint32_t nSamples) {
     Assert(nSamples % 2 == 0);
     Assert(nSamples <= GameGetSoundSamplesMax);
-    const uint32_t n = nSamples / 2;
+    const uint32_t n = nSamples / 2u;
     static Accumulator temp;
     Synthesizer::OutputInterruptHandler(temp[0], temp[1], n);
     ConvertAccumulatorToSamples(samples, temp, n);

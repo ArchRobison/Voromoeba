@@ -1,4 +1,4 @@
-/* Copyright 2011-2020 Arch D. Robison
+/* Copyright 2011-2021 Arch D. Robison
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -89,7 +89,9 @@ private:
     T myArray[Outline::lineWidth+MAX_STRIPE_HEIGHT+InclusiveBottom];
 };
 
-//! A region that is convex.
+//! A region with a convex boundary.
+//! A positive region is all points inside and including the boundary. 
+//! A negative region is all points outside the boundary.
 class ConvexRegion {
     RowVector<RegionSegment, false> myVec;
     bool myIsPositive;
@@ -122,13 +124,20 @@ struct SignedSegment;
 //! A region that can have concavities or disconnects.
 class CompoundRegion {
 public:
+    CompoundRegion() = default;
+
     //! True iff region is empty.
     bool empty() const { return bottom()<=top(); }
+
+    //! Topmost y coordinate within region.
     int top() const { return myVec.top(); }
+
+    //! One more than bottommost y coordinate with the regino.
     int bottom() const { return myVec.bottom(); }
 
     //! True if region is empty for scan line y.
     bool empty(int y) const { return myVec[y]==myVec[y+1]; }
+
     int left(int y) const { return begin(y)->left; }
     int right(int y) const { return end(y)[-1].right; }
 

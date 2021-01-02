@@ -1,4 +1,4 @@
-/* Copyright 2011-2013 Arch D. Robison
+/* Copyright 2011-2021 Arch D. Robison
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -13,11 +13,11 @@
    limitations under the License.
  */
 
+#include "Beetle.h"
+#include "Enum.h"
 #include "NimbleDraw.h"
 #include "Utility.h"
 #include "Geometry.h"
-#include "Beetle.h"
-#include "Enum.h"
 #include <cstdint>
 
 enum class PondOption : uint8_t {
