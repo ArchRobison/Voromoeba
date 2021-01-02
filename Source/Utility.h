@@ -171,6 +171,7 @@ public:
     ~SimpleBag() {
         operator delete(myBegin);
     }
+    //! True if bag is empty.
     bool isEmpty() {
         Assert(myBegin<=myEnd);
         return myEnd==myBegin;
@@ -181,7 +182,7 @@ public:
         dst = *--myEnd;
         myEnd->~T();
     }
-    //! Add item to end of bag
+    //! Add item to end of bag. Number of items must not exceed maxSize specified by constructor.
     void push(T i) {
         Assert(myEnd<myLimit);
         new(myEnd++) T(i);

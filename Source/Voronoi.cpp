@@ -37,7 +37,7 @@ class WalkByY {
 #endif /* ASSERTIONS */
 public:
     WalkByY() {}
-    const Ant& WalkByY::startWalk(float y, Ant* first, Ant* last);
+    const Ant& startWalk(float y, Ant* first, Ant* last);
 
     /** Get next Ant that is above or below lineY if it is within distance d of lineY.
         Otherwise return NULL. */
